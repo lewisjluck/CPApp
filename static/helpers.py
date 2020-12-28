@@ -29,12 +29,13 @@ class Form:
     def find_distance(self):
         #Import API libaries
         import googlemaps
+        import os
 
         #CPAP Select Work Address
-        ORIGIN = "737 Logan Road Greenslopes QLD"
+        ORIGIN = os.environ["WORK_ADDRESS"]
 
         #Google Maps API Key
-        GOOGLE_MAPS_API_KEY = "AIzaSyCSk58iSStU1iZCRWAlvXmmhArg0HOAYdA"
+        GOOGLE_MAPS_API_KEY = os.environ["GOOGLE_MAPS_API_KEY"]
 
         #Find distance between origin and form address using Google Maps API
         gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)

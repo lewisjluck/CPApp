@@ -7,15 +7,12 @@ import os
 import json
 
 #Coreplus API keys
-COREPLUS_API_CONSUMER_ID = "44f2f611-0842-4845-8731-adedfe0a7ef4"
-COREPLUS_API_SECRET = "7JmH8WdxQxGgduaR538bQ7euoWDBtXp7NEWMpUWcYk3PVAg2YrDdUg=="
-COREPLUS_ACCESS_KEY = "c20f18ff-e535-4c0f-b811-c13503bf35c5"
-
-#Google Maps API Key
-GOOGLE_MAPS_API_KEY = "AIzaSyCSk58iSStU1iZCRWAlvXmmhArg0HOAYdA"
+COREPLUS_API_CONSUMER_ID = os.environ["COREPLUS_API_CONSUMER_ID"]
+COREPLUS_API_SECRET = os.environ["COREPLUS_API_SECRET"]
+COREPLUS_ACCESS_KEY = os.environ["COREPLUS_ACCESS_KEY"]
 
 # *** TESTING ***
-client = Client("Angelina", "Barbieri", "123456", "80 McIlwraith Avenue", "Norman Park", "QLD", "4170", "0467226317")
+client = Client("Angelina", "Barbieri", "123456", "6 Chrystal Street", "Paddington", "QLD", "4064", "0467226317")
 options = {
     "report":True,
     "visit":True,
