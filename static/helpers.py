@@ -26,20 +26,14 @@ class Form:
         self.options = options
         self.new = new
 
-    def find_distance(self):
+    def find_distance(self, api_key, origin):
         #Import API libaries
         import googlemaps
         import os
 
-        #CPAP Select Work Address
-        ORIGIN = os.environ["WORK_ADDRESS"]
-
-        #Google Maps API Key
-        GOOGLE_MAPS_API_KEY = os.environ["GOOGLE_MAPS_API_KEY"]
-
         #Find distance between origin and form address using Google Maps API
-        gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
-        distances = gmaps.distance_matrix(ORIGIN, self.client.address + self.client.suburb + self.client.state)
+        gmaps = googlemaps.Client(key=api_key)
+        distances = gmaps.distance_matrix(origin, self.client.address + self.client.suburb + self.client.state)
 
         #Try to use distance to output appropriate reference
         try:
@@ -60,7 +54,7 @@ class Form:
             print("Location not found, as per matrix: \n", distances)
             return "ERROR"
 
-    def make_pdf(self):
+    def make_pdf(self, api_key, WORK_ADDRESS):
         #Import dependencies
         from PyPDF2 import PdfFileReader, PdfFileWriter
         from PyPDF2.generic import NameObject, BooleanObject, IndirectObject
@@ -68,10 +62,10 @@ class Form:
 
         #Product codes for frequent service products
         SERVICE_PRODUCTS = {
-            "report":["REPORT-PAP", "SERVICE CLINICAL", "1", "PAP COMPLIANCE DOWNLOAD REPORT"],
-            "visit":["VISIT-PAP", "SERVICE CLINICAL", "1", "PAP CONSULTATION"],
-            "delivery":[self.find_distance(), "SERVICE TRAVEL", "1", "DELIVERY"],
-            "setup":["SETUP-PAP", "SERVICE CLINICAL", "1", "PAP SETUP AND COMPLIANCE"]
+            "report": Product("REPORT-PAP", "SERVICE CLINICAL", "1", "PAP COMPLIANCE DOWNLOAD REPORT"),
+            "visit": Product("VISIT-PAP", "SERVICE CLINICAL", "1", "PAP CONSULTATION"),
+            "delivery": Product(self.find_distance(api_key, WORK_ADDRESS), "SERVICE TRAVEL", "1", "DELIVERY"),
+            "setup": Product("SETUP-PAP", "SERVICE CLINICAL", "1", "PAP SETUP AND COMPLIANCE")
         }
 
         #Read pdf templates using PyPDF2
@@ -80,7 +74,6 @@ class Form:
         #Get main form field names from pdf reader
         fields = form.getFields(tree=None, retval=None, fileobj=None)
         field_names = list(fields.keys())
-        print(field_names)
 
         #Format address appropriately across the three fields
         addresses = [self.client.address, "", ""]
@@ -94,29 +87,57 @@ class Form:
                         break
 
         #Assign main details to values
-        field_values = [
+        details = [
         self.client.dva_num,
         self.client.first_name[0],
         self.client.last_name,
         self.client.suburb,
         self.client.state,
         self.client.postcode,
-        ""
-        ]
-        field_values[3:3] = addresses
+        ""]
+        details[3:3] = addresses
 
-        #Fill in products
-        for product in self.products:
-            field_values += [product.reference, product.lot, product.quantity, product.description]
+        pages = [[]]
+        i = 0
+        products = self.products[:]
+        print("Products: ", products)
 
-        #Fill in service products using option settings
-        for option, setting in self.options.items():
-            if setting:
-                field_values += SERVICE_PRODUCTS[option]
+        while products:
+            pages[i].append(products.pop(0))
+            if not products:
+                options = []
+                for option, setting in self.options.items():
+                    if setting:
+                        options.append(SERVICE_PRODUCTS[option])
+                if (len(pages[i]) + len(options)) > 5:
+                    pages.append(options)
+                else:
+                    pages[i] += options
+                break
+            if len(pages[i]) == 5:
+                pages.append([])
+                i += 1
 
-        #Pad out unused fields, zip into dict for writing
-        field_values += [""] * (len(field_names) - len(field_values))
-        field_dict = dict(zip(field_names, map(lambda x:x.upper(), field_values)))
+        #PDF writers using PyPDF2
+        writer = PdfFileWriter()
+
+        #Cycle through pages
+        for page in pages:
+            #Make a copy of field_values
+            field_values = details[:]
+
+            #Add values from each page
+            for product in page:
+                field_values += [product.reference, product.lot, product.quantity, product.description]
+
+            #Pad out unused fields, zip into dict for writing
+            field_values += [""] * (len(field_names) - len(field_values))
+            field_dict = dict(zip(field_names, map(lambda x:x.upper(), field_values)))
+            print(field_dict)
+
+            #Add page to writer, update fields from input data
+            writer.addPage(form.getPage(0))
+            writer.updatePageFormFieldValues(writer.getPage(0), field_dict)
 
         #Get pdf templates using PyPDF2
         end_form = PdfFileReader("static/pdf_templates/end_page.pdf")
@@ -133,16 +154,17 @@ class Form:
 
         #Zip end field values and names into dict
         end_field_dict = dict(zip(end_field_names, end_field_values))
-        print("Main form fields: ", field_dict)
-        print("End page fields: ", end_field_dict)
-        writer = PdfFileWriter()
-        writer.addPage(form.getPage(0))
-        writer.updatePageFormFieldValues(writer.getPage(0), field_dict)
+
+        #Fill and add end page to writer
         writer.addPage(end_form.getPage(0))
         writer.updatePageFormFieldValues(writer.getPage(1), end_field_dict)
+
+        #Set form fields to visible
         if "/AcroForm" not in writer._root_object:
             writer._root_object.update({NameObject("/AcroForm"): IndirectObject(len(writer._objects), 0, writer)})
         writer._root_object["/AcroForm"][NameObject("/NeedAppearances")] = BooleanObject(True)
+
+        #Write pdf to file
         with open("print.pdf", "wb") as output:
             writer.write(output)
             output.close()
