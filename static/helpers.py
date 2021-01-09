@@ -119,14 +119,17 @@ class Form:
         from PyPDF2.generic import NameObject, BooleanObject, IndirectObject
         from datetime import date
         import os
+        import pypdftk
+
+        pdf_pages = []
 
         #Cycle through pages
         for j, page in enumerate(self.pages):
 
-            read_template = open("static/pdf_templates/form.pdf", "rb")
+            template_name = "static/pdf_templates/form.pdf"
 
             #Read pdf templates using PyPDF2
-            form = PdfFileReader(read_template)
+            form = PdfFileReader(open(template_name, "rb"))
 
             #Get main form field names from pdf reader
             fields = form.getFields(tree=None, retval=None, fileobj=None)
@@ -148,6 +151,9 @@ class Form:
             print(field_dict)
 
             #Add page to writer, update fields from input data
+            pdf_pages.append(pypdftk.fill_form(template_name, field_dict))
+
+            """
             page = form.getPage(0)
             writer.addPage(form.getPage(0))
             writer.updatePageFormFieldValues(writer.getPage(0), field_dict)
@@ -160,10 +166,12 @@ class Form:
             #Write pdf to file
             with open("print" + str(j) + ".pdf", "wb") as output:
                 writer.write(output)
+            """
 
-        end_form_template = open("static/pdf_templates/end_page.pdf", "rb")
+
+        end_form_template_name = "static/pdf_templates/end_page.pdf"
         #Get pdf templates using PyPDF2
-        end_form = PdfFileReader(end_form_template)
+        end_form = PdfFileReader(open(end_form_template_name, "rb"))
 
         #Get end form fields from reader
         end_fields = end_form.getFields(tree=None, retval=None, fileobj=None)
@@ -178,6 +186,10 @@ class Form:
         #Zip end field values and names into dict
         end_field_dict = dict(zip(end_field_names, end_field_values))
 
+        pdf_pages.append(pypdftk.fill_form(end_form_template_name, end_field_dict))
+        pypdftk.concat(pdf_pages, "print.pdf")
+
+        """
         writer = PdfFileWriter()
 
         #Fill and add end page to writer
@@ -192,3 +204,4 @@ class Form:
         #Write pdf to file
         with open("print" + str(len(self.pages)) + ".pdf", "wb") as output:
             writer.write(output)
+        """

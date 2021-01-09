@@ -15,7 +15,7 @@ COREPLUS_API_SECRET = secret[1]
 COREPLUS_ACCESS_KEY = secret[2]
 
 # *** TESTING ***
-client = Client("Angelina", "Barbieri", "123456", "6 Chrystal Street", "Paddington", "QLD", "4064", "0467226317")
+client = Client("Lewis", "Luck", "123456", "6 Chrystal Street", "Paddington", "QLD", "4064", "0467226317")
 options = {
     "report":True,
     "visit":True,
@@ -23,7 +23,7 @@ options = {
     "setup":False,
     "urgent":False
 }
-form = Form(client, [Product("1", "1", "1", "Example Product"), Product("2", "2", "1", "Example Product"), Product("3", "3", "1", "Example Product")], options, True)
+form = Form(client, [Product("1", "1", "1", "Example Product 1"), Product("2", "2", "1", "Example Product 2"), Product("3", "3", "1", "Example Product 3")], options, True)
 form.make_pdf()
 
 #Flask setup
