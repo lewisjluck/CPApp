@@ -15,6 +15,7 @@ COREPLUS_API_SECRET = secret[1]
 COREPLUS_ACCESS_KEY = secret[2]
 
 # *** TESTING ***
+"""
 client = Client("Lewis", "Luck", "123456", "6 Chrystal Street", "Paddington", "QLD", "4064", "0467226317")
 options = {
     "report":True,
@@ -25,6 +26,7 @@ options = {
 }
 form = Form(client, [Product("1", "1", "1", "Example Product 1"), Product("2", "2", "1", "Example Product 2"), Product("3", "3", "1", "Example Product 3")], options, True)
 form.make_pdf()
+"""
 
 #Flask setup
 app = Flask(__name__)
@@ -41,6 +43,18 @@ def index():
 def contracts():
     if request.method == "GET":
         return render_template("contracts.html")
+
+@app.route("/deliveries", methods = ["GET", "POST"])
+def deliveries():
+    return render_template("error.html", message="This page is not implemented yet.", address="/")
+
+@app.route("/reports", methods = ["GET", "POST"])
+def reports():
+    return render_template("error.html", message="This page is not implemented yet.", address="/")
+
+@app.route("/login", methods = ["GET", "POST"])
+def login():
+    return render_template("error.html", message="This page is not implemented yet.", address="/")
 
 """
 if __name__ == "__main__":

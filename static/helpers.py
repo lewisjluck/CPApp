@@ -115,8 +115,7 @@ class Form:
 
     def make_pdf(self):
         #Import dependencies
-        from PyPDF2 import PdfFileReader, PdfFileWriter, PdfFileMerger
-        from PyPDF2.generic import NameObject, BooleanObject, IndirectObject
+        from PyPDF2 import PdfFileReader
         from datetime import date
         import os
         import pypdftk

@@ -19,6 +19,15 @@ label {
   padding-left: 0.5rem;
 }
 
+nav {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.navbar-right {
+  margin-left: auto;
+}
+
 #homepage-image {
   max-width: 70%;
   margin: auto;
@@ -48,9 +57,3 @@ footer {
   margin-left: -100px;
   width: 200px;
 }
-
-padding-left: 20px;
-position: absolute;
-top: 50%;
--ms-transform: translateY(-50%);
-transform: translateY(-50%);

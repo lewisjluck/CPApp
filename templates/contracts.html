@@ -3,11 +3,81 @@
 {% block title %} Contracts {% endblock %}
 
 {% block body %}
-<form class="" action="/" method="post">
-  <div class="form-group">
-    <label>Please enter the name of your client:</label>
-    <i class="fas fa-search" aria-hidden="true"></i>
-    <input autocomplete="off" autofocus type="text" class="form-control" name="search" value="" required>
+<h1 class="mx-auto">Contracts</h1>
+<p class="mx-auto"> Please use our contracts tool to load a client and manually fill in products below! </p>
+
+<form class="mx-auto" action="/" method="post">
+  <div class="row g-3 mb-3">
+    <div class="col-md-10 col-12 form-floating">
+      <input autofocus type="text" placeholder="Name" class="form-control" id="client" name="client" value="" required>
+      <label for="client"> Client name </label>
+    </div>
+    <div class="col-md-2 col-12">
+      <button type="button" class="btn btn-dark block px-4 col-12 h-100" id="client-search-btn">Search</button>
+    </div>
   </div>
+  <div id="template" style="display:none">
+    <div class="row g-3 mb-3 product">
+      <div class="col-md-2 form-floating">
+        <input autocomplete="off" type="text" placeholder="Reference" class="form-control ref" name="ref0" value="" required>
+        <label for="reference"> Item # </label>
+      </div>
+      <div class="col-md-3 form-floating">
+        <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control lot" name="lot0" value="" required>
+        <label for="reference"> Lot or serial # </label>
+      </div>
+      <div class="col-md-1 form-floating">
+        <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" name="quantity0" value="" required>
+        <label for="reference"> Quantity </label>
+      </div>
+      <div class="col-md-5 form-floating">
+        <input autocomplete="off" type="text" placeholder="Description" class="form-control description" name="description0" value="" required>
+        <label for="reference"> Description </label>
+      </div>
+      <div class="col-md-1">
+        <button type="button" class="btn col-12 block btn-outline-danger h-100 fs-3 fw-bold px-4 remove">-</button>
+      </div>
+    </div>
+  </div>
+  <div class="row g-3 mb-3">
+    <button type="button" class="col-md-2 mx-auto h-100 btn btn-outline-success fw-bold fs-3 px-4" id="add">+</button>
+  </div>
+  <div class="row g-3 mb-1">
+    <button type="submit" class="col-md-2 mx-auto block h-100 btn btn-secondary fs-4 fw-bold px-4" id="print">Print</button>
+  </div>
+
 </form>
+
+<style>
+  #contracts {
+    color: rgba(255,255,255,.7);
+  }
+</style>
+
+<script type="text/javascript">
+  $(function() {
+    var data = []
+    $("#add").parent().before($("#template").html());
+    $("#add").click(function() {
+      $("#add").parent().before($("#template").html());
+      $(this).blur()
+    })
+    $(document).on("click", ".remove", function() {
+      if ($(".product").length > 2) {
+        $(this).parent().parent().remove();
+      }
+      $(this).blur()
+    })
+    $("#search").click(function() {
+      data = ["Bob", "Brian"];
+    })
+    if (data.length) {
+      $("#client").autocomplete({
+        source: data
+      });
+    }
+
+  });
+</script>
+
 {% endblock %}
