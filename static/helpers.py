@@ -19,21 +19,80 @@ class Product:
         self.description = description
 
 class Form:
-    #Initialise a form with a Client, a list of Products, and options
+    #Initialise a form with a Client, pages of Products, and options
     def __init__(self, client, products, options, new):
-        self.client = client
-        self.products = products
-        self.options = options
+        #Assign main details to values
         self.new = new
+        self.client = client
+        self.details = [
+        client.dva_num,
+        client.first_name[0],
+        client.last_name,
+        client.suburb,
+        client.state,
+        client.postcode,
+        ""]
 
-    def find_distance(self, api_key, origin):
+        #Product codes for frequent service products
+        SERVICE_PRODUCTS = {
+            "report": Product("REPORT-PAP", "SERVICE CLINICAL", "1", "PAP COMPLIANCE DOWNLOAD REPORT"),
+            "visit": Product("VISIT-PAP", "SERVICE CLINICAL", "1", "PAP CONSULTATION"),
+            "delivery": Product(self.find_distance(), "SERVICE TRAVEL", "1", "DELIVERY"),
+            "setup": Product("SETUP-PAP", "SERVICE CLINICAL", "1", "PAP INITIAL SETUP AND 2 X FOLLOW UP"),
+            "urgent": Product("URGENT-PAP", "SERVICE CLINICAL", "1", "URGENT DELIVERY")
+        }
+
+        #Format address appropriately across the three fields
+        addresses = [client.address, "", ""]
+        for (i, address) in enumerate(addresses):
+            if len(address) > 25:
+                for j in range(len(address.split())):
+                    new = " ".join(address.split()[:-(j+1)])
+                    if len(new) < 25 and not new == address:
+                        addresses[i] = new
+                        addresses[i+1] = " ".join(address.split()[-j-1:])
+                        break
+        self.details[3:3] = addresses
+
+        pages = [[]]
+        i = 0
+
+        #Populate "pages" with products, keeping services together on the same page
+        while products:
+            pages[i].append(products.pop(0))
+            if not products:
+                page_options = []
+                for option, setting in options.items():
+                    if setting:
+                        page_options.append(SERVICE_PRODUCTS[option])
+                if (len(pages[i]) + len(options)) > 5:
+                    pages.append(page_options)
+                else:
+                    pages[i] += options
+                break
+            if len(pages[i]) == 5:
+                pages.append([])
+                i += 1
+
+        #Assign values
+        self.pages = pages
+
+    def find_distance(self):
         #Import API libaries
         import googlemaps
-        import os
+
+        #Open file for secret
+        secret = open("secret.txt", "r").readlines()
+
+        #Work address
+        WORK_ADDRESS = secret[3]
+
+        #Google maps API key
+        GOOGLE_MAPS_API_KEY = secret[4]
 
         #Find distance between origin and form address using Google Maps API
-        gmaps = googlemaps.Client(key=api_key)
-        distances = gmaps.distance_matrix(origin, self.client.address + self.client.suburb + self.client.state)
+        gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
+        distances = gmaps.distance_matrix(WORK_ADDRESS, self.client.address + self.client.suburb + self.client.state)
 
         #Try to use distance to output appropriate reference
         try:
@@ -54,77 +113,30 @@ class Form:
             print("Location not found, as per matrix: \n", distances)
             return "ERROR"
 
-    def make_pdf(self, api_key, WORK_ADDRESS):
+    def make_pdf(self):
         #Import dependencies
-        from PyPDF2 import PdfFileReader, PdfFileWriter
+        from PyPDF2 import PdfFileReader, PdfFileWriter, PdfFileMerger
         from PyPDF2.generic import NameObject, BooleanObject, IndirectObject
         from datetime import date
-
-        #Product codes for frequent service products
-        SERVICE_PRODUCTS = {
-            "report": Product("REPORT-PAP", "SERVICE CLINICAL", "1", "PAP COMPLIANCE DOWNLOAD REPORT"),
-            "visit": Product("VISIT-PAP", "SERVICE CLINICAL", "1", "PAP CONSULTATION"),
-            "delivery": Product(self.find_distance(api_key, WORK_ADDRESS), "SERVICE TRAVEL", "1", "DELIVERY"),
-            "setup": Product("SETUP-PAP", "SERVICE CLINICAL", "1", "PAP SETUP AND COMPLIANCE")
-        }
-
-        #Read pdf templates using PyPDF2
-        form = PdfFileReader("static/pdf_templates/form.pdf")
-
-        #Get main form field names from pdf reader
-        fields = form.getFields(tree=None, retval=None, fileobj=None)
-        field_names = list(fields.keys())
-
-        #Format address appropriately across the three fields
-        addresses = [self.client.address, "", ""]
-        for (i, address) in enumerate(addresses):
-            if len(address) > 25:
-                for j in range(len(address.split())):
-                    new = " ".join(address.split()[:-(j+1)])
-                    if len(new) < 25 and not new == address:
-                        addresses[i] = new
-                        addresses[i+1] = " ".join(address.split()[-j-1:])
-                        break
-
-        #Assign main details to values
-        details = [
-        self.client.dva_num,
-        self.client.first_name[0],
-        self.client.last_name,
-        self.client.suburb,
-        self.client.state,
-        self.client.postcode,
-        ""]
-        details[3:3] = addresses
-
-        pages = [[]]
-        i = 0
-        products = self.products[:]
-        print("Products: ", products)
-
-        while products:
-            pages[i].append(products.pop(0))
-            if not products:
-                options = []
-                for option, setting in self.options.items():
-                    if setting:
-                        options.append(SERVICE_PRODUCTS[option])
-                if (len(pages[i]) + len(options)) > 5:
-                    pages.append(options)
-                else:
-                    pages[i] += options
-                break
-            if len(pages[i]) == 5:
-                pages.append([])
-                i += 1
-
-        #PDF writers using PyPDF2
-        writer = PdfFileWriter()
+        import os
 
         #Cycle through pages
-        for page in pages:
+        for j, page in enumerate(self.pages):
+
+            read_template = open("static/pdf_templates/form.pdf", "rb")
+
+            #Read pdf templates using PyPDF2
+            form = PdfFileReader(read_template)
+
+            #Get main form field names from pdf reader
+            fields = form.getFields(tree=None, retval=None, fileobj=None)
+            field_names = list(fields.keys())
+
+            #PDF writers using PyPDF2
+            writer = PdfFileWriter()
+
             #Make a copy of field_values
-            field_values = details[:]
+            field_values = self.details[:]
 
             #Add values from each page
             for product in page:
@@ -136,11 +148,22 @@ class Form:
             print(field_dict)
 
             #Add page to writer, update fields from input data
+            page = form.getPage(0)
             writer.addPage(form.getPage(0))
             writer.updatePageFormFieldValues(writer.getPage(0), field_dict)
 
+            #Set form fields to visible
+            if "/AcroForm" not in writer._root_object:
+                writer._root_object.update({NameObject("/AcroForm"): IndirectObject(len(writer._objects), 0, writer)})
+            writer._root_object["/AcroForm"][NameObject("/NeedAppearances")] = BooleanObject(True)
+
+            #Write pdf to file
+            with open("print" + str(j) + ".pdf", "wb") as output:
+                writer.write(output)
+
+        end_form_template = open("static/pdf_templates/end_page.pdf", "rb")
         #Get pdf templates using PyPDF2
-        end_form = PdfFileReader("static/pdf_templates/end_page.pdf")
+        end_form = PdfFileReader(end_form_template)
 
         #Get end form fields from reader
         end_fields = end_form.getFields(tree=None, retval=None, fileobj=None)
@@ -155,9 +178,11 @@ class Form:
         #Zip end field values and names into dict
         end_field_dict = dict(zip(end_field_names, end_field_values))
 
+        writer = PdfFileWriter()
+
         #Fill and add end page to writer
         writer.addPage(end_form.getPage(0))
-        writer.updatePageFormFieldValues(writer.getPage(1), end_field_dict)
+        writer.updatePageFormFieldValues(writer.getPage(0), end_field_dict)
 
         #Set form fields to visible
         if "/AcroForm" not in writer._root_object:
@@ -165,6 +190,5 @@ class Form:
         writer._root_object["/AcroForm"][NameObject("/NeedAppearances")] = BooleanObject(True)
 
         #Write pdf to file
-        with open("print.pdf", "wb") as output:
+        with open("print" + str(len(self.pages)) + ".pdf", "wb") as output:
             writer.write(output)
-            output.close()

@@ -14,23 +14,17 @@ COREPLUS_API_CONSUMER_ID = secret[0]
 COREPLUS_API_SECRET = secret[1]
 COREPLUS_ACCESS_KEY = secret[2]
 
-#Work address
-WORK_ADDRESS = secret[3]
-
-#Google maps API key
-GOOGLE_MAPS_API_KEY = secret[4]
-
 # *** TESTING ***
 client = Client("Angelina", "Barbieri", "123456", "6 Chrystal Street", "Paddington", "QLD", "4064", "0467226317")
 options = {
     "report":True,
     "visit":True,
     "delivery":True,
-    "setup":False
+    "setup":False,
+    "urgent":False
 }
 form = Form(client, [Product("1", "1", "1", "Example Product"), Product("2", "2", "1", "Example Product"), Product("3", "3", "1", "Example Product")], options, True)
-form.make_pdf(GOOGLE_MAPS_API_KEY, WORK_ADDRESS)
-#print(form.find_distance(GOOGLE_MAPS_API_KEY))
+form.make_pdf()
 
 #Flask setup
 app = Flask(__name__)
