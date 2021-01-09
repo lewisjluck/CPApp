@@ -153,21 +153,6 @@ class Form:
             #Add page to writer, update fields from input data
             pdf_pages.append(pypdftk.fill_form(template_name, field_dict))
 
-            """
-            page = form.getPage(0)
-            writer.addPage(form.getPage(0))
-            writer.updatePageFormFieldValues(writer.getPage(0), field_dict)
-
-            #Set form fields to visible
-            if "/AcroForm" not in writer._root_object:
-                writer._root_object.update({NameObject("/AcroForm"): IndirectObject(len(writer._objects), 0, writer)})
-            writer._root_object["/AcroForm"][NameObject("/NeedAppearances")] = BooleanObject(True)
-
-            #Write pdf to file
-            with open("print" + str(j) + ".pdf", "wb") as output:
-                writer.write(output)
-            """
-
 
         end_form_template_name = "static/pdf_templates/end_page.pdf"
         #Get pdf templates using PyPDF2
@@ -188,20 +173,3 @@ class Form:
 
         pdf_pages.append(pypdftk.fill_form(end_form_template_name, end_field_dict))
         pypdftk.concat(pdf_pages, "print.pdf")
-
-        """
-        writer = PdfFileWriter()
-
-        #Fill and add end page to writer
-        writer.addPage(end_form.getPage(0))
-        writer.updatePageFormFieldValues(writer.getPage(0), end_field_dict)
-
-        #Set form fields to visible
-        if "/AcroForm" not in writer._root_object:
-            writer._root_object.update({NameObject("/AcroForm"): IndirectObject(len(writer._objects), 0, writer)})
-        writer._root_object["/AcroForm"][NameObject("/NeedAppearances")] = BooleanObject(True)
-
-        #Write pdf to file
-        with open("print" + str(len(self.pages)) + ".pdf", "wb") as output:
-            writer.write(output)
-        """
