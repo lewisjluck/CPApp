@@ -13,39 +13,82 @@
       <label for="client"> Client name </label>
     </div>
     <div class="col-md-2 col-12">
-      <button type="button" class="btn btn-dark block px-4 col-12 h-100" id="client-search-btn">Search</button>
+      <button type="button" class="form-btn btn btn-dark function-btn block px-4 col-12" id="search">Search</button>
     </div>
   </div>
   <div id="template" style="display:none">
     <div class="row g-3 mb-3 product">
       <div class="col-md-2 form-floating">
-        <input autocomplete="off" type="text" placeholder="Reference" class="form-control ref" name="ref0" value="" required>
+        <input autocomplete="off" type="text" placeholder="Reference" class="form-control ref" name="ref" value="" required>
         <label for="reference"> Item # </label>
       </div>
       <div class="col-md-3 form-floating">
-        <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control lot" name="lot0" value="" required>
+        <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control lot" name="lot" value="" required>
         <label for="reference"> Lot or serial # </label>
       </div>
       <div class="col-md-1 form-floating">
-        <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" name="quantity0" value="" required>
-        <label for="reference"> Quantity </label>
+        <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" name="quantity" value="" required>
+        <label class="qty-label" for="reference"> Quantity </label>
       </div>
       <div class="col-md-5 form-floating">
-        <input autocomplete="off" type="text" placeholder="Description" class="form-control description" name="description0" value="" required>
+        <input autocomplete="off" type="text" placeholder="Description" class="form-control description" name="description" value="" required>
         <label for="reference"> Description </label>
       </div>
       <div class="col-md-1">
-        <button type="button" class="btn col-12 block btn-outline-danger h-100 fs-3 fw-bold px-4 remove">-</button>
+        <button type="button" class="form-btn btn col-12 block btn-outline-danger fs-3 fw-bold px-4 remove">-</button>
       </div>
     </div>
   </div>
-  <div class="row g-3 mb-3">
-    <button type="button" class="col-md-2 mx-auto h-100 btn btn-outline-success fw-bold fs-3 px-4" id="add">+</button>
+  <div class="row g-3 mb-3 options-row">
+    <div class="form-inline col-md-3 col-12">
+      <select class="form-select h-100">
+        <option selected disabled>Options</option>
+        <option value="consultation">Standard Delivery</option>
+        <option value="first">Rental or Initial</option>
+        <option value="phone-consult">Phone Consult</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+    <div class="col-md-5 col-12 pt-3">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" name="visit" type="checkbox" id="visit" value="visit">
+        <label class="form-check-label" for="visit">Visit</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" name="report" type="checkbox" id="report" value="report">
+        <label class="form-check-label" for="report">Report</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" name="setup" type="checkbox" id="setup" value="setup">
+        <label class="form-check-label" for="setup">Setup</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" name="urgent" type="checkbox" id="urgent" value="urgent">
+        <label class="form-check-label" for="urgent">Urgent</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" name="delivery" type="checkbox" id="delivery" value="delivery">
+        <label class="form-check-label" for="delivery">Delivery</label>
+      </div>
+    </div>
+    <div class="col-md-2 col-12 mx-auto">
+      <button type="button" class="btn form-btn btn-outline-success block fs-3 fw-bold px-4 col-12" id="add">+</button>
+    </div>
+    <div class="col-md-2 col-12 mx-auto">
+      <button type="button" class="btn form-btn btn-dark function-btn block px-4 col-12" id="print">Print</button>
+    </div>
   </div>
-  <div class="row g-3 mb-1">
-    <button type="submit" class="col-md-2 mx-auto block h-100 btn btn-secondary fs-4 fw-bold px-4" id="print">Print</button>
+  <div class="alert-wrapper d-none">
+    <div class="alert alert-danger alert-dismissable fade show" role="alert">
+      Sorry, we couldn't find that user in Coreplus.
+    </div>
   </div>
-
+  <div class="success-wrapper d-none">
+    <div class="alert alert-success alert-dismissable fade show" role="alert">
+      User found and stored for printing.
+    </div>
+  </div>
+  <input type="text" name="id" value="" class="id-storage d-none">
 </form>
 
 <style>
@@ -56,27 +99,115 @@
 
 <script type="text/javascript">
   $(function() {
-    var data = []
-    $("#add").parent().before($("#template").html());
+    //Manage quantity overflow
+    //console.log("Label: " + $(".qty-label").width())
+    //console.log("Input: " + $(".quantity").width())
+    //if ($(".qty-label").width > $(".quantity").width){
+      //$(".qty-label").text("Qty")
+    //} else {
+      //$(".qty-label").text("Quantity")
+    //}
+
+    //Dismiss alert on button click
+    $(".close").on('click', function() {
+      $(this).parent().alert('close')
+    })
+
+    //Add product on manual startup
+    $(".options-row").before($("#template").html());
+
+    //Add product when add button clicked
     $("#add").click(function() {
-      $("#add").parent().before($("#template").html());
+      $(".options-row").before($("#template").html());
       $(this).blur()
     })
+
+    //Remove product when remove button clicked
     $(document).on("click", ".remove", function() {
       if ($(".product").length > 2) {
         $(this).parent().parent().remove();
       }
       $(this).blur()
     })
-    $("#search").click(function() {
-      data = ["Bob", "Brian"];
-    })
-    if (data.length) {
-      $("#client").autocomplete({
-        source: data
-      });
-    }
 
+    //Update checkboxes when select option changed
+    $("select").change(function() {
+      var option = $(this).val()
+      console.log(option)
+      switch(option) {
+        case "consultation":
+          $("#report").prop('checked', true);
+          $("#visit").prop('checked', true);
+          $("#delivery").prop('checked', true);
+          $("#setup").prop('checked', false);
+          $("#urgent").prop('checked', false);
+          $(".form-check-input").attr("disabled", true);
+          break;
+        case "phone-consult":
+          $("#report").prop('checked', true);
+          $("#visit").prop('checked', true);
+          $("#delivery").prop('checked', false);
+          $("#setup").prop('checked', false);
+          $("#urgent").prop('checked', false);
+          $(".form-check-input").attr("disabled", true);
+          break;
+        case "first":
+          $("#report").prop('checked', true);
+          $("#visit").prop('checked', false);
+          $("#delivery").prop('checked', true);
+          $("#setup").prop('checked', true);
+          $("#urgent").prop('checked', false);
+          $(".form-check-input").attr("disabled", true);
+          break;
+        case "custom":
+          $("#report").prop('checked', false);
+          $("#visit").prop('checked', false);
+          $("#delivery").prop('checked', false);
+          $("#setup").prop('checked', false);
+          $("#urgent").prop('checked', false);
+          $(".form-check-input").removeAttr("disabled");
+      }
+      $(this).blur()
+    })
+
+    master_data = []
+
+    //When client search is longer than 3 characters, query backend for autcomplete names
+    $("#client").on('input', function() {
+      name_fragment = $("#client").val()
+      $.getJSON("/get_clients", {name: name_fragment}, function(names) {
+        master_data = names.map(function(name) { return {"name": name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")", "id":name["clientId"]}})
+        data = names.map(function(name) {return name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")"});
+        $("#client").autocomplete({
+          source: data
+        });
+      });
+    });
+
+    //Client submits search for client, if found flags for success and stores in undisplayed input
+    $("#search").click(function() {
+      var found = false;
+      name = $("#client").val().trim()
+      master_data.forEach(function(dict) {
+        if (dict["name"] == name) {
+          $(".id-storage").val(dict["id"])
+          found = true;
+        }
+      })
+      //If not found present alert
+      if (!found) {
+        $(".alert-wrapper").before($(".alert-wrapper").html())
+        setTimeout(function () {
+          $(".alert-wrapper").prev().alert('close');
+        }, 3000);
+      } else {
+        $(".alert-wrapper").before($(".success-wrapper").html())
+        setTimeout(function () {
+          $(".alert-wrapper").prev().alert('close');
+        }, 3000);
+      }
+      $(this).blur()
+    });
   });
 </script>
 

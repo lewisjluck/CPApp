@@ -1,16 +1,17 @@
 main {
   padding-top: 3vh;
   text-align: center;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 300;
 }
 
-h1, h2, h3, h4, h5, h6, li, a{
+h1, h2, h3, h4, h5, h6, nav, a {
   font-family: 'Montserrat', sans-serif;
   font-weight: 900;
 }
 
-label span p footer {
-  font-family: 'Work Sans', sans-serif;
-  font-weight: 300;
+form {
+  max-width: 70vw;
 }
 
 label {
@@ -24,29 +25,28 @@ nav {
   padding-right: 1.5rem;
 }
 
+input[type=text] {
+  height: 4rem !important;
+  font-size: 18px !important;
+  padding-bottom: .3rem !important;
+}
+
+.function-btn {
+  background-color: rgb(33, 37, 41);
+}
+
+.form-btn {
+  height: 64px !important;
+  font-weight: bold;
+}
+
+.quantity {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 .navbar-right {
   margin-left: auto;
-}
-
-#homepage-image {
-  max-width: 70%;
-  margin: auto;
-}
-
-#homepage-container {
-  width: 70vw;
-}
-
-form {
-  width: 70%;
-  margin: auto;
-}
-
-.main-heading {
-  color: #F1F1F2;
-  font-size: 5vh;
-  font-family: 'Montserrat', sans-serif;
-
 }
 
 footer {
