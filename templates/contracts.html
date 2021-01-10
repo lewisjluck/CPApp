@@ -9,14 +9,35 @@
 <form class="mx-auto" action="/" method="post">
   <div class="row g-3 mb-3">
     <div class="col-md-10 col-12 form-floating">
-      <input autofocus type="text" placeholder="Name" class="form-control" id="client" name="client" value="" required>
+      <input autocomplete="off" autofocus type="text" placeholder="Name" class="form-control" id="client" name="client" value="" required>
       <label for="client"> Client name </label>
     </div>
     <div class="col-md-2 col-12">
       <button type="button" class="form-btn btn btn-dark function-btn block px-4 col-12" id="search">Search</button>
     </div>
   </div>
-  <div id="template" style="display:none">
+  <div class="row g-3 mb-3 product">
+    <div class="col-md-2 form-floating">
+      <input autocomplete="off" type="text" placeholder="Reference" class="form-control ref" name="ref0" value="" required>
+      <label for="reference"> Item # </label>
+    </div>
+    <div class="col-md-3 form-floating">
+      <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control lot" name="lot0" value="" required>
+      <label for="reference"> Lot or serial # </label>
+    </div>
+    <div class="col-md-1 form-floating">
+      <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" max="1" name="quantity0" value="" required>
+      <label class="qty-label" for="reference"> Quantity </label>
+    </div>
+    <div class="col-md-5 form-floating">
+      <input autocomplete="off" type="text" placeholder="Description" class="form-control description" name="description0" value="" required>
+      <label for="reference"> Description </label>
+    </div>
+    <div class="col-md-1">
+      <button type="button" class="form-btn btn col-12 block btn-outline-danger fs-3 fw-bold px-4 remove">-</button>
+    </div>
+  </div>
+  <div id="template" class="d-none">
     <div class="row g-3 mb-3 product">
       <div class="col-md-2 form-floating">
         <input autocomplete="off" type="text" placeholder="Reference" class="form-control ref" name="ref" value="" required>
@@ -27,7 +48,7 @@
         <label for="reference"> Lot or serial # </label>
       </div>
       <div class="col-md-1 form-floating">
-        <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" name="quantity" value="" required>
+        <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" max="1" name="quantity" value="" required>
         <label class="qty-label" for="reference"> Quantity </label>
       </div>
       <div class="col-md-5 form-floating">
@@ -40,16 +61,17 @@
     </div>
   </div>
   <div class="row g-3 mb-3 options-row">
-    <div class="form-inline col-md-3 col-12">
+    <div class="form-inline col-md-2 col-12">
       <select class="form-select h-100">
         <option selected disabled>Options</option>
         <option value="consultation">Standard Delivery</option>
-        <option value="first">Rental or Initial</option>
+        <option value="first">Rental Machine</option>
         <option value="phone-consult">Phone Consult</option>
+        <option value="new-client">New Client</option>
         <option value="custom">Custom</option>
       </select>
     </div>
-    <div class="col-md-5 col-12 pt-3">
+    <div class="col-md-6 col-12 pt-3">
       <div class="form-check form-check-inline">
         <input class="form-check-input" name="visit" type="checkbox" id="visit" value="visit">
         <label class="form-check-label" for="visit">Visit</label>
@@ -57,6 +79,10 @@
       <div class="form-check form-check-inline">
         <input class="form-check-input" name="report" type="checkbox" id="report" value="report">
         <label class="form-check-label" for="report">Report</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" name="delivery" type="checkbox" id="delivery" value="delivery">
+        <label class="form-check-label" for="delivery">Delivery</label>
       </div>
       <div class="form-check form-check-inline">
         <input class="form-check-input" name="setup" type="checkbox" id="setup" value="setup">
@@ -67,8 +93,8 @@
         <label class="form-check-label" for="urgent">Urgent</label>
       </div>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" name="delivery" type="checkbox" id="delivery" value="delivery">
-        <label class="form-check-label" for="delivery">Delivery</label>
+        <input class="form-check-input" name="new" type="checkbox" id="new" value="new">
+        <label class="form-check-label" for="new">New Client</label>
       </div>
     </div>
     <div class="col-md-2 col-12 mx-auto">
@@ -88,7 +114,6 @@
       User found and stored for printing.
     </div>
   </div>
-  <input type="text" name="id" value="" class="id-storage d-none">
 </form>
 
 <style>
@@ -108,14 +133,6 @@
       //$(".qty-label").text("Quantity")
     //}
 
-    //Dismiss alert on button click
-    $(".close").on('click', function() {
-      $(this).parent().alert('close')
-    })
-
-    //Add product on manual startup
-    $(".options-row").before($("#template").html());
-
     //Add product when add button clicked
     $("#add").click(function() {
       $(".options-row").before($("#template").html());
@@ -133,7 +150,6 @@
     //Update checkboxes when select option changed
     $("select").change(function() {
       var option = $(this).val()
-      console.log(option)
       switch(option) {
         case "consultation":
           $("#report").prop('checked', true);
@@ -141,6 +157,7 @@
           $("#delivery").prop('checked', true);
           $("#setup").prop('checked', false);
           $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
           $(".form-check-input").attr("disabled", true);
           break;
         case "phone-consult":
@@ -149,6 +166,7 @@
           $("#delivery").prop('checked', false);
           $("#setup").prop('checked', false);
           $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
           $(".form-check-input").attr("disabled", true);
           break;
         case "first":
@@ -157,6 +175,16 @@
           $("#delivery").prop('checked', true);
           $("#setup").prop('checked', true);
           $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
+          $(".form-check-input").attr("disabled", true);
+          break;
+        case "new-client":
+          $("#report").prop('checked', false);
+          $("#visit").prop('checked', true);
+          $("#delivery").prop('checked', true);
+          $("#setup").prop('checked', true);
+          $("#urgent").prop('checked', false);
+          $("#new").prop('checked', true);
           $(".form-check-input").attr("disabled", true);
           break;
         case "custom":
@@ -165,17 +193,19 @@
           $("#delivery").prop('checked', false);
           $("#setup").prop('checked', false);
           $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
           $(".form-check-input").removeAttr("disabled");
       }
       $(this).blur()
     })
 
-    master_data = []
+    master_data = [];
+    master_id = "";
 
     //When client search is longer than 3 characters, query backend for autcomplete names
     $("#client").on('input', function() {
       name_fragment = $("#client").val()
-      $.getJSON("/get_clients", {name: name_fragment}, function(names) {
+      $.getJSON("/get_clients", {"name": name_fragment}, function(names) {
         master_data = names.map(function(name) { return {"name": name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")", "id":name["clientId"]}})
         data = names.map(function(name) {return name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")"});
         $("#client").autocomplete({
@@ -190,12 +220,14 @@
       name = $("#client").val().trim()
       master_data.forEach(function(dict) {
         if (dict["name"] == name) {
-          $(".id-storage").val(dict["id"])
+          master_id = dict["id"];
           found = true;
         }
       })
+
       //If not found present alert
       if (!found) {
+        $(".alert-wrapper").children().text("Sorry, we couldn't find that user in Coreplus.")
         $(".alert-wrapper").before($(".alert-wrapper").html())
         setTimeout(function () {
           $(".alert-wrapper").prev().alert('close');
@@ -207,6 +239,73 @@
         }, 3000);
       }
       $(this).blur()
+
+
+
+    });
+    //Submit print request
+    $("#print").on('click', function() {
+      if (!master_id) {
+        $(".alert-wrapper").children().text("Sorry, you need to input a valid client before printing.")
+        $(".alert-wrapper").before($(".alert-wrapper").html())
+        setTimeout(function () {
+          $(".alert-wrapper").prev().alert('close');
+        }, 3000);
+        $(this).blur()
+      } else {
+        var product_data = [[], [], [], []]
+
+        $(".ref").each(function() {
+          product_data[0].push($(this).val())
+        })
+
+        $(".lot").each(function() {
+          product_data[1].push($(this).val())
+        })
+
+        $(".quantity").each(function() {
+          product_data[2].push($(this).val())
+        })
+
+        $(".description").each(function() {
+          product_data[3].push($(this).val())
+        })
+
+        options = {
+            "report":false,
+            "visit":false,
+            "delivery":false,
+            "setup":false,
+            "urgent":false
+        };
+
+        $(".form-check-input").each(function(){
+          if ($(this).prop('checked')) {
+            options[$(this).attr("id")] = true
+          }
+        })
+
+        var pap_dump = {
+          "id": master_id,
+          "products": product_data,
+          "options": options,
+          "new": $("#new").prop('checked')
+        }
+
+        console.log(JSON.stringify(pap_dump));
+        $.ajax({
+            url: '/make_file',
+            data: JSON.stringify(pap_dump),
+            type: 'POST',
+            success: function(response) {
+                window.location = response;
+            },
+            error: function(error) {
+                window.location = "/print_error"
+            }
+        });
+        //$.post("/print_file", {dump: pap_dump}, function(data) {return data});
+      }
     });
   });
 </script>

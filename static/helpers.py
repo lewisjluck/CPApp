@@ -56,19 +56,21 @@ class Form:
 
         pages = [[]]
         i = 0
+        page_options = []
+        for option, setting in options.items():
+            if setting:
+                page_options.append(SERVICE_PRODUCTS[option])
+        if not products:
+            pages[0] = page_options
 
         #Populate "pages" with products, keeping services together on the same page
         while products:
             pages[i].append(products.pop(0))
             if not products:
-                page_options = []
-                for option, setting in options.items():
-                    if setting:
-                        page_options.append(SERVICE_PRODUCTS[option])
-                if (len(pages[i]) + len(options)) > 5:
+                if (len(pages[i]) + len(page_options)) > 5:
                     pages.append(page_options)
                 else:
-                    pages[i] += options
+                    pages[i] += page_options
                 break
             if len(pages[i]) == 5:
                 pages.append([])
@@ -134,9 +136,6 @@ class Form:
             fields = form.getFields(tree=None, retval=None, fileobj=None)
             field_names = list(fields.keys())
 
-            #PDF writers using PyPDF2
-            writer = PdfFileWriter()
-
             #Make a copy of field_values
             field_values = self.details[:]
 
@@ -147,7 +146,6 @@ class Form:
             #Pad out unused fields, zip into dict for writing
             field_values += [""] * (len(field_names) - len(field_values))
             field_dict = dict(zip(field_names, map(lambda x:x.upper(), field_values)))
-            print(field_dict)
 
             #Add page to writer, update fields from input data
             pdf_pages.append(pypdftk.fill_form(template_name, field_dict))
