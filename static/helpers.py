@@ -94,7 +94,7 @@ class Form:
 
         #Find distance between origin and form address using Google Maps API
         gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
-        distances = gmaps.distance_matrix(WORK_ADDRESS, self.client.address + self.client.suburb + self.client.state)
+        distances = gmaps.distance_matrix(WORK_ADDRESS, self.client.address + " " + self.client.suburb + " " + self.client.state)
 
         #Try to use distance to output appropriate reference
         try:
@@ -169,4 +169,4 @@ class Form:
         end_field_dict = dict(zip(end_field_names, end_field_values))
 
         pdf_pages.append(pypdftk.fill_form(end_form_template_name, end_field_dict))
-        pypdftk.concat(pdf_pages, "print.pdf")
+        pypdftk.concat(pdf_pages, "static/print.pdf")

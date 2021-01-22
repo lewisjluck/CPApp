@@ -1,2 +1,5 @@
 .DS_Store
-api_keys.txt
+secret.txt
+products.db-journal
+print.pdf
+products.csv

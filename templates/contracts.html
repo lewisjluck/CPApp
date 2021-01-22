@@ -4,7 +4,7 @@
 
 {% block body %}
 <h1 class="mx-auto">Contracts</h1>
-<p class="mx-auto"> Please use our contracts tool to load a client and manually fill in products below! </p>
+<p class="mx-auto"> Please use our contracts tool to load a client and fill in products below! </p>
 
 <form class="mx-auto" action="/" method="post">
   <div class="row g-3 mb-3">
@@ -124,15 +124,6 @@
 
 <script type="text/javascript">
   $(function() {
-    //Manage quantity overflow
-    //console.log("Label: " + $(".qty-label").width())
-    //console.log("Input: " + $(".quantity").width())
-    //if ($(".qty-label").width > $(".quantity").width){
-      //$(".qty-label").text("Qty")
-    //} else {
-      //$(".qty-label").text("Quantity")
-    //}
-
     //Add product when add button clicked
     $("#add").click(function() {
       $(".options-row").before($("#template").html());
@@ -199,28 +190,71 @@
       $(this).blur()
     })
 
-    master_data = [];
-    master_id = "";
+    client_data = [];
+    client_id = "";
 
     //When client search is longer than 3 characters, query backend for autcomplete names
     $("#client").on('input', function() {
       name_fragment = $("#client").val()
-      $.getJSON("/get_clients", {"name": name_fragment}, function(names) {
-        master_data = names.map(function(name) { return {"name": name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")", "id":name["clientId"]}})
-        data = names.map(function(name) {return name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")"});
-        $("#client").autocomplete({
-          source: data
+      if (name_fragment.length > 1) {
+        $.getJSON("/get_clients", {"name": name_fragment}, function(names) {
+          client_data = names.map(function(name) { return {"name": name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")", "id":name["clientId"]}})
+          data = names.map(function(name) {return name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")"});
+          $("#client").autocomplete({
+            source: data
+          });
         });
-      });
+      }
+    });
+
+    product_data = [];
+    product_data_names = [];
+
+    //When ref or description search is longer than 1 character, query backend for autcomplete products
+    $(document).on('input', '.ref, .description', function() {
+      console.log("queried")
+      input_box = $(this)
+      query = $(this).val()
+      if (query.length == 0) {
+        product_data_names = [];
+      }
+      if (query.length > 1  ) {
+        $.getJSON("/get_products", {"query": query}, function(products) {
+          product_data = products;
+          product_data_names = products.map(function(product) {return product["ref"] + " - " + product["description"]});
+        });
+        $(this).autocomplete({
+          source: product_data_names,
+          select: function(event, ui) {
+            html_product = input_box.parent().parent()
+            product = product_data[product_data_names.indexOf(ui.item.value)];
+            html_product.find(".ref").val(product["ref"]);
+            html_product.find(".description").val(product["description"]);
+            html_product.find(".quantity").val("1")
+            html_lot = html_product.find(".lot")
+            console.log(product["lot"])
+            html_lot.autocomplete({
+              source: product["lot"],
+              minLength: 0
+            }).focus(function(){
+                  $(this).autocomplete("search");
+            });
+            html_lot.focus()
+            $(this).blur()
+            return false
+          }
+        });
+      }
+
     });
 
     //Client submits search for client, if found flags for success and stores in undisplayed input
     $("#search").click(function() {
       var found = false;
       name = $("#client").val().trim()
-      master_data.forEach(function(dict) {
+      client_data.forEach(function(dict) {
         if (dict["name"] == name) {
-          master_id = dict["id"];
+          client_id = dict["id"];
           found = true;
         }
       })
@@ -239,13 +273,11 @@
         }, 3000);
       }
       $(this).blur()
-
-
-
     });
+
     //Submit print request
     $("#print").on('click', function() {
-      if (!master_id) {
+      if (!client_id) {
         $(".alert-wrapper").children().text("Sorry, you need to input a valid client before printing.")
         $(".alert-wrapper").before($(".alert-wrapper").html())
         setTimeout(function () {
@@ -286,25 +318,23 @@
         })
 
         var pap_dump = {
-          "id": master_id,
+          "id": client_id,
           "products": product_data,
           "options": options,
           "new": $("#new").prop('checked')
         }
 
-        console.log(JSON.stringify(pap_dump));
         $.ajax({
             url: '/make_file',
             data: JSON.stringify(pap_dump),
             type: 'POST',
-            success: function(response) {
-                window.location = response;
-            },
-            error: function(error) {
-                window.location = "/print_error"
+            success: function() {
+              window.location = "/get_file"
             }
+            //error: function(error) {
+                //window.location = "/print_error"
+            //}
         });
-        //$.post("/print_file", {dump: pap_dump}, function(data) {return data});
       }
     });
   });
