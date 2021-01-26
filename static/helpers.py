@@ -63,6 +63,12 @@ class Form:
         if not products:
             pages[0] = page_options
 
+        #Generate invoice text
+        string = f"This invoice is for DVA:{client.dva_num}."
+        for product in products:
+            string += f" {product.quantity}x {product.description}, REF: {product.reference}, LOT:{product.lot}"
+        self.text = string
+
         #Populate "pages" with products, keeping services together on the same page
         while products:
             pages[i].append(products.pop(0))
@@ -75,7 +81,6 @@ class Form:
             if len(pages[i]) == 5:
                 pages.append([])
                 i += 1
-
         #Assign values
         self.pages = pages
 
@@ -146,7 +151,7 @@ class Form:
             #Pad out unused fields, zip into dict for writing
             field_values += [""] * (len(field_names) - len(field_values))
             field_dict = dict(zip(field_names, map(lambda x:x.upper(), field_values)))
-
+            print(field_dict)
             #Add page to writer, update fields from input data
             pdf_pages.append(pypdftk.fill_form(template_name, field_dict))
 

@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %} Contracts {% endblock %}
+
+{% block body %}
+<h1 class="mx-auto">Products</h1>
+<p class="mx-auto"> Please add or update a product to our database below! </p>
+<form class="mx-auto" action="/" method="post">
+  <div class="row g-3 mb-3 product">
+    <div class="col-md-2 form-floating">
+      <input autocomplete="off" type="text" placeholder="Reference" class="form-control ref" name="ref" value="" required>
+      <label for="reference"> Item # </label>
+    </div>
+    <div class="col-md-3 form-floating">
+      <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control lot" name="lot" value="" required>
+      <label for="reference"> Lot or serial # </label>
+    </div>
+    <div class="col-md-5 form-floating">
+      <input autocomplete="off" type="text" placeholder="Description" class="form-control description" name="description" value="" required>
+      <label for="reference"> Description </label>
+    </div>
+    <div class="col-md-2 col-12">
+      <button type="submit" class="form-btn btn btn-dark function-btn block px-4 col-12" id="add">Add Product</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

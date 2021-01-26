@@ -54,3 +54,17 @@ def add_lot(product):
     db.execute("INSERT INTO lots (ref, lot) VALUES (?, ?)", (product.reference, product.lot))
     db.commit()
     close_db(db)
+
+#Update databse information depending on input data
+def update_product(product):
+    db = open_db()
+    product = db.execute("SELECT * FROM products WHERE ref=?", (product.reference,)).fetchone()
+    if product:
+        db.execute("UPDATE products SET description = ? WHERE ref=?", (product.description, product.reference))
+    else:
+        db.execute("INSERT INTO products (ref, description) VALUES (?, ?)", (product.reference, product.description))
+    sql_lots = db.execute("SELECT * FROM lots WHERE ref=?", (product.reference,)).fetchall()
+    lots = [lot[0] for lot in sql_lots]
+    if not product.lot in lots:
+        db.execute("INSERT INTO lots (ref, lot) VALUES (?, ?)", (product.reference, product.lot))
+    close_db(db)

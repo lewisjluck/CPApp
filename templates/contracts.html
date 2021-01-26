@@ -114,6 +114,10 @@
       User found and stored for printing.
     </div>
   </div>
+  <div class="form-group d-none">
+    <label for="">Invoice Text</label>
+    <textarea class="form-control" id="invoice_text"></textarea>
+  </div>
 </form>
 
 <style>
@@ -196,7 +200,7 @@
     //When client search is longer than 3 characters, query backend for autcomplete names
     $("#client").on('input', function() {
       name_fragment = $("#client").val()
-      if (name_fragment.length > 1) {
+      if (name_fragment) {
         $.getJSON("/get_clients", {"name": name_fragment}, function(names) {
           client_data = names.map(function(name) { return {"name": name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")", "id":name["clientId"]}})
           data = names.map(function(name) {return name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")"});
@@ -218,7 +222,7 @@
       if (query.length == 0) {
         product_data_names = [];
       }
-      if (query.length > 1  ) {
+      if (query) {
         $.getJSON("/get_products", {"query": query}, function(products) {
           product_data = products;
           product_data_names = products.map(function(product) {return product["ref"] + " - " + product["description"]});
@@ -328,8 +332,10 @@
             url: '/make_file',
             data: JSON.stringify(pap_dump),
             type: 'POST',
-            success: function() {
-              window.location = "/get_file"
+            success: function(text) {
+              $("#invoice_text").val(text)
+              $("#invoice_text").parent().removeClass("d-none")
+              window.open("/Contract")
             }
             //error: function(error) {
                 //window.location = "/print_error"

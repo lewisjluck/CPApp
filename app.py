@@ -82,12 +82,13 @@ def claims(url):
     return headers
 
 #Default error response
-def error(address="contracts"):
-    return render_template("error.html", message="Something went wrong! Let's try that again.", address="/" + address)
+def error(message="Something went wrong! Let's try that again.", address="contracts"):
+    return render_template("error.html", message=message, address="/" + address)
 
 #Default not implemented response
 def unimplemented(address=""):
     return render_template("error.html", message="This page is not implemented yet.", address="/" + address)
+
 
 
 
@@ -142,12 +143,13 @@ def make_file():
         json_data = response.json()
         form = parse_form(json_data, data)
         form.make_pdf()
-        return 400
+        return form.text
 
 #Display file
-@app.route("/get_file", methods = ["GET", "POST"])
+@app.route("/Contract", methods = ["GET", "POST"])
 def get_file():
-    return send_file("./static/print.pdf")
+    print("OK")
+    return send_file("./static/print.pdf", mimetype="application/pdf", cache_timeout=0)
 
 @app.route("/print_file", methods=["GET", "POST"])
 def print_file():
@@ -161,9 +163,15 @@ def print_error():
 def deliveries():
     return unimplemented()
 
-@app.route("/reports", methods = ["GET", "POST"])
+@app.route("/products", methods = ["GET", "POST"])
 def reports():
-    return unimplemented()
+    if request.method == "POST":
+        if not request.form.get("ref"):
+            return error("You must enter a reference number for your product!", "product")
+        update_product(Product(str(request.form.get("ref")), str(request.form.get("lot")), "", str(request.form.get("description"))))
+        return render_template("products.html", alert=True)
+    else:
+        return render_template("products.html", alert=False)
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
