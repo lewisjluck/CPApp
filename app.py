@@ -56,12 +56,12 @@ def parse_form(json_data, data):
     client = Client(json_data['firstName'], json_data["lastName"], "123456", json_data['addressResidential']["streetAddress"], suburb, state, json_data['addressResidential']["postcode"], number)
     options = data["options"]
     products = []
-    for i in range(len(data["products"][0]) - 1):
+    for i in range(len(data["products"][0])):
         products.append(Product(data["products"][0][i], data["products"][1][i], data["products"][2][i], data["products"][3][i]))
     for product in products:
         match = search_product(product.reference)[0]
         if match:
-            if not product.lot in match["lot"]:
+            if not product.lot in [lot[0] for lot in match["lot"]]:
                 add_lot(product)
     return(Form(client, products, data["options"], data["new"]))
 
@@ -123,12 +123,10 @@ def get_clients():
 @app.route("/get_products", methods= ["GET", "POST"])
 def get_products():
     query = request.args.get('query')
-    print(query)
     if query:
         try:
             return jsonify(search_product(query))
         except error:
-            print(error)
             return error()
     else:
         return error()
@@ -148,12 +146,7 @@ def make_file():
 #Display file
 @app.route("/Contract", methods = ["GET", "POST"])
 def get_file():
-    print("OK")
     return send_file("./static/print.pdf", mimetype="application/pdf", cache_timeout=0)
-
-@app.route("/print_file", methods=["GET", "POST"])
-def print_file():
-    return unimplemented()
 
 @app.route("/print_error", methods=["GET", "POST"])
 def print_error():

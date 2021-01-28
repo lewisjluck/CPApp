@@ -2,6 +2,7 @@
 import sqlite3
 import csv
 from static.helpers import Form, Client, Product
+from datetime import date
 
 #Dynamic pathing
 from os import path
@@ -27,7 +28,7 @@ def input_products(file_name):
             db.execute("INSERT INTO products (ref, description) VALUES (?,?)", (row[0], row[1]))
             if len(row) > 2:
                 if row[2]:
-                    db.execute("INSERT INTO lots (ref, lot) VALUES (?,?)", (row[0], row[2]))
+                    db.execute("INSERT INTO lots (ref, lot, info) VALUES (?,?,?)", (row[0], row[2], ""))
             db.commit()
     close_db(db)
 
@@ -39,8 +40,7 @@ def search_product(query):
     if products == []:
         products = db.execute("SELECT * FROM products WHERE ref LIKE ?", ("%" + query + "%",)).fetchall()
     for product in products:
-        sql_lots = db.execute("SELECT lot FROM lots WHERE ref=?", (product[0],)).fetchall()
-        lots = [lot[0] for lot in sql_lots]
+        lots = db.execute("SELECT lot, info FROM lots WHERE ref=?", (product[0],)).fetchall()
         matches.append({
         "ref":product[0],
         "lot":lots,
@@ -51,7 +51,7 @@ def search_product(query):
 #Add product lot
 def add_lot(product):
     db = open_db()
-    db.execute("INSERT INTO lots (ref, lot) VALUES (?, ?)", (product.reference, product.lot))
+    db.execute("INSERT INTO lots (ref, lot, info) VALUES (?, ?, ?)", (product.reference, product.lot, date.today().strftime("%d/%m/%Y")))
     db.commit()
     close_db(db)
 
@@ -64,7 +64,9 @@ def update_product(product):
     else:
         db.execute("INSERT INTO products (ref, description) VALUES (?, ?)", (product.reference, product.description))
     sql_lots = db.execute("SELECT * FROM lots WHERE ref=?", (product.reference,)).fetchall()
+    print(sql_lots)
     lots = [lot[0] for lot in sql_lots]
     if not product.lot in lots:
-        db.execute("INSERT INTO lots (ref, lot) VALUES (?, ?)", (product.reference, product.lot))
+        db.execute("INSERT INTO lots (ref, lot, info) VALUES (?, ?, ?)", (product.reference, product.lot, date.today().strftime("%d/%m/%Y")))
+    db.commit()
     close_db(db)

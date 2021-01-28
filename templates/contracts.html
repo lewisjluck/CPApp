@@ -216,7 +216,6 @@
 
     //When ref or description search is longer than 1 character, query backend for autcomplete products
     $(document).on('input', '.ref, .description', function() {
-      console.log("queried")
       input_box = $(this)
       query = $(this).val()
       if (query.length == 0) {
@@ -236,9 +235,14 @@
             html_product.find(".description").val(product["description"]);
             html_product.find(".quantity").val("1")
             html_lot = html_product.find(".lot")
-            console.log(product["lot"])
             html_lot.autocomplete({
-              source: product["lot"],
+              source: product["lot"].map(function(product) {
+                if (product[1] == "") {
+                  return product[0]
+                } else {
+                  return product[0] + " - " + product[1]
+                }
+              }),
               minLength: 0
             }).focus(function(){
                   $(this).autocomplete("search");
@@ -292,19 +296,27 @@
         var product_data = [[], [], [], []]
 
         $(".ref").each(function() {
-          product_data[0].push($(this).val())
+          if ($(this).val() != "") {
+            product_data[0].push($(this).val())
+          }
         })
 
         $(".lot").each(function() {
-          product_data[1].push($(this).val())
+          if ($(this).val() != "") {
+            product_data[1].push($(this).val())
+          }
         })
 
         $(".quantity").each(function() {
-          product_data[2].push($(this).val())
+          if ($(this).val() != "") {
+            product_data[2].push($(this).val())
+          }
         })
 
         $(".description").each(function() {
-          product_data[3].push($(this).val())
+          if ($(this).val() != "") {
+            product_data[3].push($(this).val())
+          }
         })
 
         options = {
@@ -317,7 +329,7 @@
 
         $(".form-check-input").each(function(){
           if ($(this).prop('checked')) {
-            options[$(this).attr("id")] = true
+            options[$(this).attr("id")] = true;
           }
         })
 
