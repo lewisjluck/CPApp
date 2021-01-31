@@ -1,6 +1,6 @@
 class Client :
     #Initialise a client with appropriate details
-    def __init__(self, first_name, last_name, dva_num, address, suburb, state, postcode, number):
+    def __init__(self, first_name, last_name, dva_num, address, suburb, state, postcode, mobile_number, home_number):
         self.first_name = first_name
         self.last_name = last_name
         self.dva_num = dva_num
@@ -8,7 +8,10 @@ class Client :
         self.suburb = suburb
         self.state = state
         self.postcode = postcode
-        self.number = number
+        self.mobile_number = mobile_number
+        self.home_number = home_number
+    def text(self):
+        return f"{self.first_name} {self.last_name} \n{self.address}, {self.suburb} \n{self.mobile_number}/{self.home_number}\n"
 
 class Product:
     #Initialise a product with appropriate details
@@ -66,8 +69,8 @@ class Form:
         #Generate invoice text
         string = f"This invoice is for DVA:{client.dva_num}."
         for product in products:
-            string += f" {product.quantity}x {product.description}, REF: {product.reference}, LOT:{product.lot}"
-        self.text = string
+            string += f" {product.quantity}x {product.description} REF: {product.reference} LOT:{product.lot},"
+        self.text = string[:-1]
 
         #Populate "pages" with products, keeping services together on the same page
         while products:

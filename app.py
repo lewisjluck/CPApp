@@ -22,6 +22,9 @@ COREPLUS_ACCESS_KEY = secret[2]
 #Coreplus base url
 COREPLUS_BASE_URL = "https://sandbox.coreplus.com.au/api/core/v2.1"
 
+#Deliveries clients
+deliveries_clients = []
+
 # *** TESTING ***
 """
 client = Client("Lewis", "Luck", "123456", "6 Chrystal Street", "Paddington", "QLD", "4064", "0467226317")
@@ -49,11 +52,12 @@ def parse_form(json_data, data):
         state = json_data['addressResidential']["state"]
     else:
         state = json_data['addressResidential']["suburb"][-3:]
-    if json_data["phoneNumberMobile"]:
-        number = json_data["phoneNumberMobile"]
-    else:
-        number = json_data["phoneNumberHome"]
-    client = Client(json_data['firstName'], json_data["lastName"], "123456", json_data['addressResidential']["streetAddress"], suburb, state, json_data['addressResidential']["postcode"], number)
+    client = Client(json_data['firstName'], json_data["lastName"], "123456", json_data['addressResidential']["streetAddress"], suburb, state, json_data['addressResidential']["postcode"], json_data["phoneNumberMobile"], json_data["phoneNumberHome"])
+    name = client.first_name + " " + client.last_name
+    with open("static/deliveries.txt", "a") as file:
+        if name not in deliveries_clients:
+            file.write(client.text())
+            deliveries_clients.append(name)
     options = data["options"]
     products = []
     for i in range(len(data["products"][0])):
@@ -148,14 +152,25 @@ def make_file():
 def get_file():
     return send_file("./static/print.pdf", mimetype="application/pdf", cache_timeout=0)
 
+#Print error page
 @app.route("/print_error", methods=["GET", "POST"])
 def print_error():
     return error()
 
+#Page to record delivery client details
 @app.route("/deliveries", methods = ["GET", "POST"])
 def deliveries():
-    return unimplemented()
+    if request.method == "POST":
+        if "print" in request.form:
+            return send_file("./static/deliveries.txt", mimetype="application/txt", cache_timeout=0)
+        elif "clear" in request.form:
+            open("static/deliveries.txt", "w").close()
+            deliveries_clients = []
+        return redirect("/deliveries")
+    else:
+        return render_template("deliveries.html")
 
+#Page to update or add products to the database
 @app.route("/products", methods = ["GET", "POST"])
 def reports():
     if request.method == "POST":
@@ -166,6 +181,7 @@ def reports():
     else:
         return render_template("products.html", alert=False)
 
+#Login page for security (may not be implemented)
 @app.route("/login", methods = ["GET", "POST"])
 def login():
     return unimplemented()

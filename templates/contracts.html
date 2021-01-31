@@ -27,7 +27,7 @@
     </div>
     <div class="col-md-1 form-floating">
       <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" max="1" name="quantity0" value="" required>
-      <label class="qty-label" for="reference"> Quantity </label>
+      <label class="qty-label" for="reference"> Qty </label>
     </div>
     <div class="col-md-5 form-floating">
       <input autocomplete="off" type="text" placeholder="Description" class="form-control description" name="description0" value="" required>
@@ -49,7 +49,7 @@
       </div>
       <div class="col-md-1 form-floating">
         <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" max="1" name="quantity" value="" required>
-        <label class="qty-label" for="reference"> Quantity </label>
+        <label class="qty-label" for="reference"> Qty </label>
       </div>
       <div class="col-md-5 form-floating">
         <input autocomplete="off" type="text" placeholder="Description" class="form-control description" name="description" value="" required>
@@ -133,7 +133,7 @@
       $(".options-row").before($("#template").html());
       $(this).blur()
     })
-
+    
     //Remove product when remove button clicked
     $(document).on("click", ".remove", function() {
       if ($(".product").length > 2) {
@@ -229,27 +229,32 @@
         $(this).autocomplete({
           source: product_data_names,
           select: function(event, ui) {
-            html_product = input_box.parent().parent()
+            html_product = input_box.parent().parent();
             product = product_data[product_data_names.indexOf(ui.item.value)];
             html_product.find(".ref").val(product["ref"]);
             html_product.find(".description").val(product["description"]);
-            html_product.find(".quantity").val("1")
-            html_lot = html_product.find(".lot")
+            html_product.find(".quantity").val("1");
+            html_lot = html_product.find(".lot");
+            html_lot.val("")
             html_lot.autocomplete({
               source: product["lot"].map(function(product) {
                 if (product[1] == "") {
-                  return product[0]
+                  return product[0];
                 } else {
-                  return product[0] + " - " + product[1]
+                  return product[0] + " - " + product[1];
                 }
               }),
+              select: function(event, ui) {
+                html_lot.val(ui.item.value.split(" ")[0]);
+                return false;
+              },
               minLength: 0
             }).focus(function(){
                   $(this).autocomplete("search");
             });
-            html_lot.focus()
-            $(this).blur()
-            return false
+            html_lot.focus();
+            $(this).blur();
+            return false;
           }
         });
       }
