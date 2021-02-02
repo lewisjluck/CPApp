@@ -9,7 +9,7 @@ This tab is the main page for producing DVA contracts. Following the following s
 1. Enter your client name into the appropriate box and it will auto-fill the contract with this client's details. This is courtesy of the Coreplus API as found at [Coreplus Developers](https://developers.coreplus.com.au/).
 
 2. Enter your product by searching through either reference number or key words in its form description. Upon click of the suggestion, reference and description will be auto-filled, and if any lots are available, it will prompt you for selection.
-> **NOTE: Upon printing a contract, any new lots for products will be added. The next time any of these products are entered, the lot and date that it was added will be displayed. This is designed to help with unpackaged parts where lots are not readily available.**
+> Upon printing a contract, any new lots for products will be added. The next time any of these products are entered, the lot and date that it was added will be displayed. This is designed to help with unpackaged parts where lots are not readily available.
 
 3. Customise additional options. This includes if a report, consultation and/or delivery is required, along with other codes. 
 
