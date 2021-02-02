@@ -5,7 +5,7 @@ An all-in-one tool for optimising office paperwork management and other processe
 CPApp has one main function: producing DVA receipt of purchase forms for sleep apnoea equipment across a variety of brands including Resmed and Philips Respironics. Below is a guide to navigating the web app.
 
 ### Contracts
-This tab is the main page for producing DVA contracts. Following the following steps:
+This tab is the main page for producing DVA contracts. This is a brief outline of the contract process:
 1. Enter your client name into the appropriate box and it will auto-fill the contract with this client's details. This is courtesy of the Coreplus API as found at [Coreplus Developers](https://developers.coreplus.com.au/).
 
 2. Enter your product by searching through either reference number or key words in its form description. Upon click of the suggestion, reference and description will be auto-filled, and if any lots are available, it will prompt you for selection.
