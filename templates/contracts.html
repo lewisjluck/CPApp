@@ -71,36 +71,51 @@
         <option value="custom">Custom</option>
       </select>
     </div>
-    <div class="col-md-6 col-12 pt-3">
+    <div class="col-md-8 col-12 pt-3">
       <div class="form-check form-check-inline">
-        <input class="form-check-input" name="visit" type="checkbox" id="visit" value="visit">
+        <input class="form-check-input option" name="visit" type="checkbox" id="visit" value="visit">
         <label class="form-check-label" for="visit">Visit</label>
       </div>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" name="report" type="checkbox" id="report" value="report">
+        <input class="form-check-input option" name="report" type="checkbox" id="report" value="report">
         <label class="form-check-label" for="report">Report</label>
       </div>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" name="delivery" type="checkbox" id="delivery" value="delivery">
+        <input class="form-check-input option" name="delivery" type="checkbox" id="delivery" value="delivery">
         <label class="form-check-label" for="delivery">Delivery</label>
       </div>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" name="setup" type="checkbox" id="setup" value="setup">
+        <input class="form-check-input option" name="setup" type="checkbox" id="setup" value="setup">
         <label class="form-check-label" for="setup">Setup</label>
       </div>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" name="urgent" type="checkbox" id="urgent" value="urgent">
+        <input class="form-check-input option" name="urgent" type="checkbox" id="urgent" value="urgent">
         <label class="form-check-label" for="urgent">Urgent</label>
       </div>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" name="new" type="checkbox" id="new" value="new">
+        <input class="form-check-input option" name="new" type="checkbox" id="new" value="new">
         <label class="form-check-label" for="new">New Client</label>
       </div>
     </div>
     <div class="col-md-2 col-12 mx-auto">
       <button type="button" class="btn form-btn btn-outline-success block fs-3 fw-bold px-4 col-12" id="add">+</button>
     </div>
-    <div class="col-md-2 col-12 mx-auto">
+  </div>
+  <div class="row g-3 mb-3 page-options-row">
+    <div class="form-inline col-md-auto col-12 pt-3">
+      <label for="" class="form-label">Any Additional Pages?</label>
+    </div>
+    <div class="col-md-auto col-12 pt-3">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input page-option" name="phone-consult" type="checkbox" id="phone-consult" value="phone-consult">
+        <label class="form-check-label" for="phone-consult">Phone Consult</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input page-option" name="checklist" type="checkbox" id="checklist" value="checklist">
+        <label class="form-check-label" for="checklist">Delivery Checklist</label>
+      </div>
+    </div>
+    <div class="col-md-2 ml-auto col-12">
       <button type="button" class="btn form-btn btn-dark function-btn block px-4 col-12" id="print">Print</button>
     </div>
   </div>
@@ -133,7 +148,7 @@
       $(".options-row").before($("#template").html());
       $(this).blur()
     })
-    
+
     //Remove product when remove button clicked
     $(document).on("click", ".remove", function() {
       if ($(".product").length > 2) {
@@ -145,6 +160,8 @@
     //Update checkboxes when select option changed
     $("select").change(function() {
       var option = $(this).val()
+      $("#checklist").prop('checked', true);
+      $("#phone-consult").prop('checked', true);
       switch(option) {
         case "consultation":
           $("#report").prop('checked', true);
@@ -153,7 +170,7 @@
           $("#setup").prop('checked', false);
           $("#urgent").prop('checked', false);
           $("#new").prop('checked', false);
-          $(".form-check-input").attr("disabled", true);
+          $(".option").attr("disabled", true);
           break;
         case "phone-consult":
           $("#report").prop('checked', true);
@@ -162,7 +179,7 @@
           $("#setup").prop('checked', false);
           $("#urgent").prop('checked', false);
           $("#new").prop('checked', false);
-          $(".form-check-input").attr("disabled", true);
+          $(".option").attr("disabled", true);
           break;
         case "first":
           $("#report").prop('checked', true);
@@ -171,7 +188,7 @@
           $("#setup").prop('checked', true);
           $("#urgent").prop('checked', false);
           $("#new").prop('checked', false);
-          $(".form-check-input").attr("disabled", true);
+          $(".option").attr("disabled", true);
           break;
         case "new-client":
           $("#report").prop('checked', false);
@@ -180,7 +197,7 @@
           $("#setup").prop('checked', true);
           $("#urgent").prop('checked', false);
           $("#new").prop('checked', true);
-          $(".form-check-input").attr("disabled", true);
+          $(".option").attr("disabled", true);
           break;
         case "custom":
           $("#report").prop('checked', false);
@@ -189,7 +206,9 @@
           $("#setup").prop('checked', false);
           $("#urgent").prop('checked', false);
           $("#new").prop('checked', false);
-          $(".form-check-input").removeAttr("disabled");
+          $("#checklist").prop('checked', false);
+          $("#phone-consult").prop('checked', false);
+          $(".option").removeAttr("disabled");
       }
       $(this).blur()
     })
@@ -332,9 +351,20 @@
             "urgent":false
         };
 
-        $(".form-check-input").each(function(){
+        $(".option").each(function(){
           if ($(this).prop('checked')) {
             options[$(this).attr("id")] = true;
+          }
+        })
+
+        page_options = {
+          "phone-consult":false,
+          "checklist":false
+        }
+
+        $(".page-option").each(function(){
+          if ($(this).prop('checked')) {
+            page_options[$(this).attr("id")] = true;
           }
         })
 
@@ -342,7 +372,8 @@
           "id": client_id,
           "products": product_data,
           "options": options,
-          "new": $("#new").prop('checked')
+          "new": $("#new").prop('checked'),
+          "page-options": page_options
         }
 
         $.ajax({

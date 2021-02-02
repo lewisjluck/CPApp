@@ -154,7 +154,6 @@ class Form:
             #Pad out unused fields, zip into dict for writing
             field_values += [""] * (len(field_names) - len(field_values))
             field_dict = dict(zip(field_names, map(lambda x:x.upper(), field_values)))
-            print(field_dict)
             #Add page to writer, update fields from input data
             pdf_pages.append(pypdftk.fill_form(template_name, field_dict))
 

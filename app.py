@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, Response, send_from_directory, send_file
 from static.helpers import Form, Client, Product
 import requests
-from db import search_product, add_lot
+from db import search_product, add_lot, update_product
 
 #Standard libraries
 import os
@@ -161,7 +161,7 @@ def print_error():
 @app.route("/deliveries", methods = ["GET", "POST"])
 def deliveries():
     if request.method == "POST":
-        if "print" in request.form:
+        if "download" in request.form:
             return send_file("./static/deliveries.txt", mimetype="application/txt", cache_timeout=0)
         elif "clear" in request.form:
             open("static/deliveries.txt", "w").close()
@@ -172,14 +172,20 @@ def deliveries():
 
 #Page to update or add products to the database
 @app.route("/products", methods = ["GET", "POST"])
-def reports():
+def products():
     if request.method == "POST":
         if not request.form.get("ref"):
             return error("You must enter a reference number for your product!", "product")
-        update_product(Product(str(request.form.get("ref")), str(request.form.get("lot")), "", str(request.form.get("description"))))
-        return render_template("products.html", alert=True)
+        print(str(request.form.get("ref")), str(request.form.get("lot")), "", str(request.form.get("description")))
+        response = update_product(Product(str(request.form.get("ref")), str(request.form.get("lot")), "", str(request.form.get("description"))))
+        print(response)
+        message = f"The product with reference: " + str(response["reference"]) + (" has been added" if response["new"] else " has been updated")
+        message += " and its lot has been changed." if response["lot_changed"] and not response["new"] else "."
+        print(message)
+        return render_template("products.html", message=message)
     else:
-        return render_template("products.html", alert=False)
+        print("PRODUCTS NOT FOUND")
+        return render_template("products.html")
 
 #Login page for security (may not be implemented)
 @app.route("/login", methods = ["GET", "POST"])
