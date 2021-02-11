@@ -1,6 +1,6 @@
 class Client :
     #Initialise a client with appropriate details
-    def __init__(self, first_name, last_name, dva_num, address, suburb, state, postcode, number):
+    def __init__(self, first_name, last_name, dva_num, address, suburb, state, postcode, mobile_number, home_number):
         self.first_name = first_name
         self.last_name = last_name
         self.dva_num = dva_num
@@ -8,7 +8,33 @@ class Client :
         self.suburb = suburb
         self.state = state
         self.postcode = postcode
-        self.number = number
+        self.mobile_number = mobile_number
+        self.home_number = home_number
+    # Deliveries text
+    def update_doc(self):
+        from docx import Document
+        document = Document("./static/deliveries.docx")
+        text = f"{self.first_name} {self.last_name} \n{self.address}, {self.suburb} \n"
+        text += f"Mobile: {self.mobile_number}\n" if self.mobile_number else ""
+        text += f"Home: {self.home_number}\n" if self.home_number else ""
+        document.add_paragraph(text)
+        document.save("./static/deliveries.docx")
+
+def make_doc():
+    from docx import Document
+    from datetime import date
+    current_date = date.today()
+    document = Document()
+    document.add_heading("Deliveres for " + current_date.strftime("%d/%m/%Y"))
+    document.save("./static/deliveries.docx")
+
+def get_text():
+    from docx import Document
+    document = Document("./static/deliveries.docx")
+    text = []
+    for para in document.paragraphs:
+        text.append(para.text)
+    return '\n'.join(text)
 
 class Product:
     #Initialise a product with appropriate details
@@ -20,7 +46,7 @@ class Product:
 
 class Form:
     #Initialise a form with a Client, pages of Products, and options
-    def __init__(self, client, products, options, new):
+    def __init__(self, client, products, options, new, page_options):
         #Assign main details to values
         self.new = new
         self.client = client
@@ -56,23 +82,37 @@ class Form:
 
         pages = [[]]
         i = 0
+        code_options = []
+        for option, setting in options.items():
+            if setting:
+                code_options.append(SERVICE_PRODUCTS[option])
+        if not products:
+            pages[0] = code_options
+
+        #Generate invoice text
+        string = f"This invoice is for DVA:{client.dva_num}."
+        for product in products:
+            string += f" {product.quantity}x {product.description} REF: {product.reference} LOT:{product.lot},"
+        self.text = string[:-1]
 
         #Populate "pages" with products, keeping services together on the same page
         while products:
             pages[i].append(products.pop(0))
             if not products:
-                page_options = []
-                for option, setting in options.items():
-                    if setting:
-                        page_options.append(SERVICE_PRODUCTS[option])
-                if (len(pages[i]) + len(options)) > 5:
-                    pages.append(page_options)
+                if (len(pages[i]) + len(code_options)) > 5:
+                    pages.append(code_options)
                 else:
-                    pages[i] += options
+                    pages[i] += code_options
                 break
             if len(pages[i]) == 5:
                 pages.append([])
                 i += 1
+        if page_options["phone-consult"]:
+            pages.append([SERVICE_PRODUCTS["report"], SERVICE_PRODUCTS["visit"]])
+        if page_options["phone-consult-vis"]:
+            pages.append([SERVICE_PRODUCTS["visit"]])
+
+        self.checklist = page_options["checklist"]
 
         #Assign values
         self.pages = pages
@@ -92,7 +132,7 @@ class Form:
 
         #Find distance between origin and form address using Google Maps API
         gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
-        distances = gmaps.distance_matrix(WORK_ADDRESS, self.client.address + self.client.suburb + self.client.state)
+        distances = gmaps.distance_matrix(WORK_ADDRESS, self.client.address + " " + self.client.suburb + " " + self.client.state)
 
         #Try to use distance to output appropriate reference
         try:
@@ -115,8 +155,7 @@ class Form:
 
     def make_pdf(self):
         #Import dependencies
-        from PyPDF2 import PdfFileReader, PdfFileWriter, PdfFileMerger
-        from PyPDF2.generic import NameObject, BooleanObject, IndirectObject
+        from PyPDF2 import PdfFileReader
         from datetime import date
         import os
         import pypdftk
@@ -135,9 +174,6 @@ class Form:
             fields = form.getFields(tree=None, retval=None, fileobj=None)
             field_names = list(fields.keys())
 
-            #PDF writers using PyPDF2
-            writer = PdfFileWriter()
-
             #Make a copy of field_values
             field_values = self.details[:]
 
@@ -148,28 +184,26 @@ class Form:
             #Pad out unused fields, zip into dict for writing
             field_values += [""] * (len(field_names) - len(field_values))
             field_dict = dict(zip(field_names, map(lambda x:x.upper(), field_values)))
-            print(field_dict)
-
             #Add page to writer, update fields from input data
             pdf_pages.append(pypdftk.fill_form(template_name, field_dict))
 
+        if self.checklist:
+            end_form_template_name = "static/pdf_templates/end_page.pdf"
+            #Get pdf templates using PyPDF2
+            end_form = PdfFileReader(open(end_form_template_name, "rb"))
 
-        end_form_template_name = "static/pdf_templates/end_page.pdf"
-        #Get pdf templates using PyPDF2
-        end_form = PdfFileReader(open(end_form_template_name, "rb"))
+            #Get end form fields from reader
+            end_fields = end_form.getFields(tree=None, retval=None, fileobj=None)
+            end_field_names = list(end_fields.keys())
 
-        #Get end form fields from reader
-        end_fields = end_form.getFields(tree=None, retval=None, fileobj=None)
-        end_field_names = list(end_fields.keys())
+            #Populate end field values with name and date, position depending on options
+            end_field_values = [""] * 4
+            index = 2 if self.new else 0
+            current_date = date.today()
+            end_field_values[index:index+1] = [self.client.first_name + " " + self.client.last_name, current_date.strftime("%d/%m/%Y")]
 
-        #Populate end field values with name and date, position depending on options
-        end_field_values = [""] * 4
-        index = 2 if self.new else 0
-        current_date = date.today()
-        end_field_values[index:index+1] = [self.client.first_name + " " + self.client.last_name, current_date.strftime("%d/%m/%Y")]
+            #Zip end field values and names into dict
+            end_field_dict = dict(zip(end_field_names, end_field_values))
 
-        #Zip end field values and names into dict
-        end_field_dict = dict(zip(end_field_names, end_field_values))
-
-        pdf_pages.append(pypdftk.fill_form(end_form_template_name, end_field_dict))
-        pypdftk.concat(pdf_pages, "print.pdf")
+            pdf_pages.append(pypdftk.fill_form(end_form_template_name, end_field_dict))
+        pypdftk.concat(pdf_pages, "static/print.pdf")

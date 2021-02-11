@@ -3,11 +3,419 @@
 {% block title %} Contracts {% endblock %}
 
 {% block body %}
-<form class="" action="/" method="post">
-  <div class="form-group">
-    <label>Please enter the name of your client:</label>
-    <i class="fas fa-search" aria-hidden="true"></i>
-    <input autocomplete="off" autofocus type="text" class="form-control" name="search" value="" required>
+<h1 class="mx-auto">Contracts</h1>
+<p class="mx-auto"> Please use our contracts tool to load a client and fill in products below. </p>
+
+<form class="mx-auto" action="/" method="post">
+  <div class="row g-3 mb-3">
+    <div class="col-md-10 col-12 form-floating">
+      <input autocomplete="off" autofocus type="text" placeholder="Name" class="form-control contract-input" id="client" name="client" value="" required>
+      <label for="client"> Client name </label>
+    </div>
+    <div class="col-md-2 col-12">
+      <button type="button" class="form-btn btn btn-dark function-btn block px-4 col-12" id="search">Search</button>
+    </div>
+  </div>
+  <div class="row g-3 mb-3 product">
+    <div class="col-md-2 form-floating">
+      <input autocomplete="off" type="text" placeholder="Reference" class="form-control contract-input ref" name="ref0" value="" required>
+      <label for="reference"> Item # </label>
+    </div>
+    <div class="col-md-3 form-floating">
+      <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control contract-input lot" name="lot0" value="" required>
+      <label for="reference"> Lot or serial # </label>
+    </div>
+    <div class="col-md-1 form-floating">
+      <input autocomplete="off" type="text" placeholder="Quantity" class="form-control contract-input quantity" max="1" name="quantity0" value="" required>
+      <label class="qty-label" for="reference"> Qty </label>
+    </div>
+    <div class="col-md-5 form-floating">
+      <input autocomplete="off" type="text" placeholder="Description" class="form-control contract-input description" name="description0" value="" required>
+      <label for="reference"> Description </label>
+    </div>
+    <div class="col-md-1">
+      <button type="button" class="form-btn btn col-12 block btn-outline-danger fs-3 fw-bold px-4 remove">-</button>
+    </div>
+  </div>
+  <div id="template" class="d-none">
+    <div class="row g-3 mb-3 product">
+      <div class="col-md-2 form-floating">
+        <input autocomplete="off" type="text" placeholder="Reference" class="form-control contract-input ref" name="ref" value="" required>
+        <label for="reference"> Item # </label>
+      </div>
+      <div class="col-md-3 form-floating">
+        <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control contract-input lot" name="lot" value="" required>
+        <label for="reference"> Lot or serial # </label>
+      </div>
+      <div class="col-md-1 form-floating">
+        <input autocomplete="off" type="text" placeholder="Quantity" class="form-control contract-input quantity" max="1" name="quantity" value="" required>
+        <label class="qty-label" for="reference"> Qty </label>
+      </div>
+      <div class="col-md-5 form-floating">
+        <input autocomplete="off" type="text" placeholder="Description" class="form-control contract-input description" name="description" value="" required>
+        <label for="reference"> Description </label>
+      </div>
+      <div class="col-md-1">
+        <button type="button" class="form-btn btn col-12 block btn-outline-danger fs-3 fw-bold px-4 remove">-</button>
+      </div>
+    </div>
+  </div>
+  <div class="row g-3 mb-3 options-row">
+    <div class="form-inline col-md-2 col-12">
+      <select class="form-select h-100">
+        <option selected disabled>Options</option>
+        <option value="consultation">Standard Delivery</option>
+        <option value="first">Rental Machine</option>
+        <option value="phone-consult">Phone Consult</option>
+        <option value="new-client">New Client</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+    <div class="col-md-8 col-12 pt-3">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input option" name="visit" type="checkbox" id="visit" value="visit">
+        <label class="form-check-label" for="visit">Visit</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input option" name="report" type="checkbox" id="report" value="report">
+        <label class="form-check-label" for="report">Report</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input option" name="delivery" type="checkbox" id="delivery" value="delivery">
+        <label class="form-check-label" for="delivery">Delivery</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input option" name="setup" type="checkbox" id="setup" value="setup">
+        <label class="form-check-label" for="setup">Setup</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input option" name="urgent" type="checkbox" id="urgent" value="urgent">
+        <label class="form-check-label" for="urgent">Urgent</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input option" name="new" type="checkbox" id="new" value="new">
+        <label class="form-check-label" for="new">New Client</label>
+      </div>
+    </div>
+    <div class="col-md-2 col-12 mx-auto">
+      <button type="button" class="btn form-btn btn-outline-success block fs-3 fw-bold px-4 col-12" id="add">+</button>
+    </div>
+  </div>
+  <div class="row g-3 mb-3 page-options-row">
+    <div class="form-inline col-md-2 col-12 pt-3">
+      <label for="" class="form-label">Additional Pages?</label>
+    </div>
+    <div class="col-md-8 col-12 pt-3">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input page-option" name="phone-consult" type="checkbox" id="phone-consult" value="phone-consult">
+        <label class="form-check-label" for="phone-consult">Phone Consult</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input page-option" name="phone-consult-vis" type="checkbox" id="phone-consult-vis" value="phone-consult-vis">
+        <label class="form-check-label" for="phone-consult-vis">Phone Consult (ONLY VISIT)</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input page-option" name="checklist" type="checkbox" id="checklist" value="checklist">
+        <label class="form-check-label" for="checklist">Delivery Checklist</label>
+      </div>
+    </div>
+    <div class="col-md-2 ml-auto col-12">
+      <button type="button" class="btn form-btn btn-dark function-btn block px-4 col-12" id="print">Print</button>
+    </div>
+  </div>
+  <div class="alert-wrapper d-none">
+    <div class="alert alert-danger alert-dismissable fade show" role="alert">
+      Sorry, we couldn't find that user in Coreplus.
+    </div>
+  </div>
+  <div class="found-wrapper d-none">
+    <div class="alert alert-success alert-dismissable fade show" role="alert">
+      User found and stored for printing.
+    </div>
+  </div>
+  <div class="loading-wrapper d-none">
+    <div class="alert alert-secondary alert-dismissable fade show" role="alert">
+      Printing...
+    </div>
+  </div>
+  <div class="success-wrapper d-none">
+    <div class="alert alert-success alert-dismissable fade show" role="alert">
+      Contract printed.
+    </div>
+  </div>
+  <div class="form-group d-none">
+    <label for="">Invoice Text</label>
+    <textarea class="form-control contract-input" id="invoice_text"></textarea>
   </div>
 </form>
+
+<style>
+  #contracts {
+    color: rgba(255,255,255,.7);
+  }
+</style>
+
+<script type="text/javascript">
+  $(function() {
+    //Add product when add button clicked
+    $("#add").click(function() {
+      $(".options-row").before($("#template").html());
+      $(this).blur()
+    })
+
+    //Remove product when remove button clicked
+    $(document).on("click", ".remove", function() {
+      $(this).parent().parent().remove();
+      $(this).blur()
+    })
+
+    //Update checkboxes when select option changed
+    $("select").change(function() {
+      var option = $(this).val()
+      $("#checklist").prop('checked', true);
+      $("#phone-consult").prop('checked', true);
+      switch(option) {
+        case "consultation":
+          $("#report").prop('checked', true);
+          $("#visit").prop('checked', true);
+          $("#delivery").prop('checked', true);
+          $("#setup").prop('checked', false);
+          $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
+          $(".option").attr("disabled", true);
+          break;
+        case "phone-consult":
+          $("#report").prop('checked', false);
+          $("#visit").prop('checked', false);
+          $("#delivery").prop('checked', false);
+          $("#setup").prop('checked', false);
+          $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
+          $(".option").attr("disabled", true);
+          $("#checklist").prop('checked', false);
+          break;
+        case "first":
+          $("#report").prop('checked', true);
+          $("#visit").prop('checked', false);
+          $("#delivery").prop('checked', true);
+          $("#setup").prop('checked', true);
+          $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
+          $(".option").attr("disabled", true);
+          break;
+        case "new-client":
+          $("#report").prop('checked', false);
+          $("#visit").prop('checked', true);
+          $("#delivery").prop('checked', true);
+          $("#setup").prop('checked', true);
+          $("#urgent").prop('checked', false);
+          $("#new").prop('checked', true);
+          $(".option").attr("disabled", true);
+          break;
+        case "no-report":
+          $("#report").prop('checked', false);
+          $("#visit").prop('checked', true);
+          $("#delivery").prop('checked', true);
+          $("#setup").prop('checked', false);
+          $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
+          $(".option").attr("disabled", true);
+          $("#phone-consult-vis").prop('checked', true);
+        case "custom":
+          $("#report").prop('checked', false);
+          $("#visit").prop('checked', false);
+          $("#delivery").prop('checked', false);
+          $("#setup").prop('checked', false);
+          $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
+          $("#checklist").prop('checked', false);
+          $("#phone-consult").prop('checked', false);
+          $(".option").removeAttr("disabled");
+      }
+      $(this).blur()
+    })
+
+    client_data = [];
+    client_id = "";
+
+    //When client search is longer than 3 characters, query backend for autcomplete names
+    $("#client").on('input', function() {
+      name_fragment = $("#client").val()
+      if (name_fragment) {
+        $.getJSON("/get_clients", {"name": name_fragment}, function(names) {
+          client_data = names.map(function(name) { return {"name": name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")", "id":name["clientId"]}})
+          data = names.map(function(name) {return name["firstName"].trim() + " " + name["lastName"].trim() + " (" + name["dateOfBirth"].substring(0,10) + ")"});
+          $("#client").autocomplete({
+            source: data
+          });
+        });
+      }
+    });
+
+    product_data = [];
+    product_data_names = [];
+
+    //When ref or description search is longer than 1 character, query backend for autcomplete products
+    $(document).on('input', '.ref, .description', function() {
+      input_box = $(this)
+      query = $(this).val()
+      if (query.length == 0) {
+        product_data_names = [];
+      }
+      if (query) {
+        $.getJSON("/get_products", {"query": query}, function(products) {
+          product_data = products;
+          product_data_names = products.map(function(product) {return product["ref"] + " - " + product["description"]});
+        });
+        $(this).autocomplete({
+          source: product_data_names,
+          select: function(event, ui) {
+            html_product = input_box.parent().parent();
+            product = product_data[product_data_names.indexOf(ui.item.value)];
+            html_product.find(".ref").val(product["ref"]);
+            html_product.find(".description").val(product["description"]);
+            html_product.find(".quantity").val("1");
+            html_lot = html_product.find(".lot");
+            html_lot.val("")
+            html_lot.autocomplete({
+              source: product["lot"].map(function(product) {
+                if (product[1] == "") {
+                  return product[0];
+                } else {
+                  return product[0] + " - " + product[1];
+                }
+              }),
+              select: function(event, ui) {
+                html_lot.val(ui.item.value.split(" ")[0]);
+                return false;
+              },
+              minLength: 0
+            }).focus(function(){
+                  $(this).autocomplete("search");
+            });
+            html_lot.focus();
+            $(this).blur();
+            return false;
+          }
+        });
+      }
+
+    });
+
+    //Client submits search for client, if found flags for success and stores in undisplayed input
+    $("#search").click(function() {
+      var found = false;
+      name = $("#client").val().trim()
+      client_data.forEach(function(dict) {
+        if (dict["name"] == name) {
+          client_id = dict["id"];
+          found = true;
+        }
+      })
+
+      //If not found present alert
+      if (!found) {
+        $(".alert-wrapper").children().text("Sorry, we couldn't find that user in Coreplus.")
+        $(".alert-wrapper").before($(".alert-wrapper").html())
+        setTimeout(function () {
+          $(".alert-wrapper").prev().alert('close');
+        }, 3000);
+      } else {
+        $(".alert-wrapper").before($(".found-wrapper").html())
+        setTimeout(function () {
+          $(".alert-wrapper").prev().alert('close');
+        }, 3000);
+      }
+      $(this).blur()
+    });
+
+    //Submit print request
+    $("#print").on('click', function() {
+      if (!client_id) {
+        $(".alert-wrapper").children().text("Sorry, you need to input a valid client before printing.")
+        $(".alert-wrapper").before($(".alert-wrapper").html())
+        setTimeout(function () {
+          $(".alert-wrapper").prev().alert('close');
+        }, 3000);
+        $(this).blur()
+      } else {
+        $(".alert-wrapper").before($(".loading-wrapper").html())
+        var product_data = [[], [], [], []]
+
+        $(".ref").each(function() {
+          product_data[0].push($(this).val())
+        })
+
+        $(".lot").each(function() {
+          product_data[1].push($(this).val())
+        })
+
+        $(".quantity").each(function() {
+          product_data[2].push($(this).val())
+        })
+
+        $(".description").each(function() {
+          product_data[3].push($(this).val())
+        })
+
+        console.log(product_data)
+
+        options = {
+            "report":false,
+            "visit":false,
+            "setup":false,
+            "urgent":false,
+            "delivery":false
+        };
+
+        $(".option").each(function(){
+          if ($(this).prop('checked')) {
+            options[$(this).attr("id")] = true;
+          }
+        })
+
+        page_options = {
+          "phone-consult":false,
+          "phone-consult-vis":false,
+          "checklist":false
+        }
+
+        $(".page-option").each(function(){
+          if ($(this).prop('checked')) {
+            page_options[$(this).attr("id")] = true;
+          }
+        })
+
+        var pap_dump = {
+          "id": client_id,
+          "products": product_data,
+          "options": options,
+          "new": $("#new").prop('checked'),
+          "page-options": page_options
+        }
+
+        $.ajax({
+            url: '/make_file',
+            data: JSON.stringify(pap_dump),
+            type: 'POST',
+            success: function(text) {
+              $(".alert-wrapper").prev().alert('close');
+              $("#invoice_text").val(text[0])
+              $("#invoice_text").parent().removeClass("d-none")
+              $(".success-wrapper").children().text(text[1])
+              $(".alert-wrapper").before($(".success-wrapper").html())
+              setTimeout(function () {
+                $(".alert-wrapper").prev().alert('close');
+              }, 3000);
+              window.open("/Contract")
+            }
+            //error: function(error) {
+                //window.location = "/print_error"
+            //}
+        });
+      }
+    });
+  });
+</script>
+
 {% endblock %}

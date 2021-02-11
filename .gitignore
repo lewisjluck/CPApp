@@ -1,0 +1,6 @@
+.DS_Store
+secret.txt
+products.db-journal
+print.pdf
+products.csv
+__pycache__/

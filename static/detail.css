@@ -1,16 +1,17 @@
 main {
   padding-top: 3vh;
   text-align: center;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 300;
 }
 
-h1, h2, h3, h4, h5, h6, li, a{
+h1, h2, h3, h4, h5, h6, nav, a {
   font-family: 'Montserrat', sans-serif;
   font-weight: 900;
 }
 
-label span p footer {
-  font-family: 'Work Sans', sans-serif;
-  font-weight: 300;
+form {
+  max-width: 70vw;
 }
 
 label {
@@ -19,25 +20,33 @@ label {
   padding-left: 0.5rem;
 }
 
-#homepage-image {
-  max-width: 70%;
-  margin: auto;
+nav {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
-#homepage-container {
-  width: 70vw;
+.contract-input {
+  height: 4rem !important;
+  font-size: 18px !important;
+  padding-bottom: .3rem !important;
 }
 
-form {
-  width: 70%;
-  margin: auto;
+.function-btn {
+  background-color: rgb(33, 37, 41) !important;
 }
 
-.main-heading {
-  color: #F1F1F2;
-  font-size: 5vh;
-  font-family: 'Montserrat', sans-serif;
+.form-btn {
+  height: 64px !important;
+  font-weight: bold;
+}
 
+.quantity {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.navbar-right {
+  margin-left: auto;
 }
 
 footer {
@@ -48,9 +57,3 @@ footer {
   margin-left: -100px;
   width: 200px;
 }
-
-padding-left: 20px;
-position: absolute;
-top: 50%;
--ms-transform: translateY(-50%);
-transform: translateY(-50%);
