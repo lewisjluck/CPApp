@@ -1,8 +1,11 @@
 #Flask libraries
 from flask import Flask, render_template, request, redirect, jsonify, Response, send_from_directory, send_file
-from static.helpers import Form, Client, Product
+from static.helpers import Form, Client, Product, make_doc, get_text
 import requests
 from db import search_product, add_lot, update_product
+
+#SMS Library - Twilio
+from twilio.rest import Client
 
 #Standard libraries
 import os
@@ -18,12 +21,17 @@ secret = open("secret.txt", "r").read().splitlines()
 COREPLUS_API_CONSUMER_ID = secret[0]
 COREPLUS_API_SECRET = secret[1]
 COREPLUS_ACCESS_KEY = secret[2]
+TWILIO_SID = secret[5]
+TWILIO_TOKEN = secret[6]
 
 #Coreplus base url
 COREPLUS_BASE_URL = "https://sandbox.coreplus.com.au/api/core/v2.1"
 
 #Deliveries clients
 deliveries_clients = []
+
+#Numbers
+numbers = []
 
 # *** TESTING ***
 """
@@ -54,20 +62,24 @@ def parse_form(json_data, data):
         state = json_data['addressResidential']["suburb"][-3:]
     client = Client(json_data['firstName'], json_data["lastName"], "123456", json_data['addressResidential']["streetAddress"], suburb, state, json_data['addressResidential']["postcode"], json_data["phoneNumberMobile"], json_data["phoneNumberHome"])
     name = client.first_name + " " + client.last_name
-    with open("static/deliveries.txt", "a") as file:
-        if name not in deliveries_clients:
-            file.write(client.text())
-            deliveries_clients.append(name)
+    if name not in deliveries_clients:
+        client.update_doc()
+        deliveries_clients.append(name)
     options = data["options"]
     products = []
+    responses = []
+    print(data)
     for i in range(len(data["products"][0])):
-        products.append(Product(data["products"][0][i], data["products"][1][i], data["products"][2][i], data["products"][3][i]))
+        if not data["products"][0][i] == "":
+            products.append(Product(data["products"][0][i], data["products"][1][i], data["products"][2][i], data["products"][3][i]))
     for product in products:
-        match = search_product(product.reference)[0]
-        if match:
-            if not product.lot in [lot[0] for lot in match["lot"]]:
+        match = search_product(product.reference)
+        try:
+            if not product.lot in [lot[0] for lot in match[0]["lot"]]:
                 add_lot(product)
-    return(Form(client, products, data["options"], data["new"]))
+        except:
+            responses.append(update_product(product))
+    return (Form(client, products, data["options"], data["new"], data["page-options"]), responses)
 
 #Helper function to generate coreplus API claims
 def claims(url):
@@ -116,9 +128,12 @@ def get_clients():
     if name_fragment:
         client_list_query = COREPLUS_BASE_URL + "/Client/?name=" + name_fragment
         response = requests.get(url=client_list_query, verify=True, headers=claims(client_list_query), timeout=45);
-        if response.json():
+        print(claims(client_list_query))
+        print(response.headers, response.content)
+        try:
             return jsonify(response.json()["clients"])
-        else:
+        except Exception as e:
+            print("ERROR ACCESSING COREPLUS, Error:", e)
             return jsonify([])
     else:
         return error()
@@ -141,11 +156,15 @@ def make_file():
     data = request.get_json(force=True)
     if data:
         client_data_query = COREPLUS_BASE_URL + "/Client/" + data["id"]
-        response = requests.get(url=client_data_query, verify=True, headers=claims(client_data_query), timeout=45);
-        json_data = response.json()
-        form = parse_form(json_data, data)
+        api_response = requests.get(url=client_data_query, verify=True, headers=claims(client_data_query), timeout=45);
+        json_data = api_response.json()
+        parse = parse_form(json_data, data)
+        text = f"The contract for " + json_data["firstName"] + " " + json_data["lastName"] + " has been printed."
+        for info in parse[1]:
+            text += f"The product with reference " + str(response["reference"]) + " has been added."
+        form = parse[0]
         form.make_pdf()
-        return form.text
+        return jsonify(form.text, text)
 
 #Display file
 @app.route("/Contract", methods = ["GET", "POST"])
@@ -162,13 +181,25 @@ def print_error():
 def deliveries():
     if request.method == "POST":
         if "download" in request.form:
-            return send_file("./static/deliveries.txt", mimetype="application/txt", cache_timeout=0)
+            return send_file("./static/deliveries.docx", cache_timeout=0)
         elif "clear" in request.form:
-            open("static/deliveries.txt", "w").close()
+            try:
+                os.remove("./static/deliveries.docx")
+            except:
+                print("FILE DOES NOT EXIST")
+            make_doc()
             deliveries_clients = []
+        elif "send" in request.form:
+            number = request.form.get("number")
+            if number not in numbers:
+                numbers.append(number)
+            print(get_text())
+            print(numbers)
+            client = Client(TWILIO_SID, TWILIO_TOKEN)
+            #message = client.message.create(to="+61467226317", from_="+16622658077", body=get_text())
         return redirect("/deliveries")
     else:
-        return render_template("deliveries.html")
+        return render_template("deliveries.html", numbers=jsonify(numbers))
 
 #Page to update or add products to the database
 @app.route("/products", methods = ["GET", "POST"])
@@ -176,20 +207,16 @@ def products():
     if request.method == "POST":
         if not request.form.get("ref"):
             return error("You must enter a reference number for your product!", "product")
-        print(str(request.form.get("ref")), str(request.form.get("lot")), "", str(request.form.get("description")))
         response = update_product(Product(str(request.form.get("ref")), str(request.form.get("lot")), "", str(request.form.get("description"))))
-        print(response)
         message = f"The product with reference: " + str(response["reference"]) + (" has been added" if response["new"] else " has been updated")
         message += " and its lot has been changed." if response["lot_changed"] and not response["new"] else "."
-        print(message)
         return render_template("products.html", message=message)
     else:
-        print("PRODUCTS NOT FOUND")
         return render_template("products.html")
 
 #Login page for security (may not be implemented)
-@app.route("/login", methods = ["GET", "POST"])
-def login():
+@app.route("/help", methods = ["GET", "POST"])
+def help():
     return unimplemented()
 
 """

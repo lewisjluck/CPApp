@@ -25,7 +25,7 @@ nav {
   padding-right: 1.5rem;
 }
 
-input[type=text] {
+.contract-input {
   height: 4rem !important;
   font-size: 18px !important;
   padding-bottom: .3rem !important;

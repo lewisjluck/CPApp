@@ -4,12 +4,12 @@
 
 {% block body %}
 <h1 class="mx-auto">Contracts</h1>
-<p class="mx-auto"> Please use our contracts tool to load a client and fill in products below! </p>
+<p class="mx-auto"> Please use our contracts tool to load a client and fill in products below. </p>
 
 <form class="mx-auto" action="/" method="post">
   <div class="row g-3 mb-3">
     <div class="col-md-10 col-12 form-floating">
-      <input autocomplete="off" autofocus type="text" placeholder="Name" class="form-control" id="client" name="client" value="" required>
+      <input autocomplete="off" autofocus type="text" placeholder="Name" class="form-control contract-input" id="client" name="client" value="" required>
       <label for="client"> Client name </label>
     </div>
     <div class="col-md-2 col-12">
@@ -18,19 +18,19 @@
   </div>
   <div class="row g-3 mb-3 product">
     <div class="col-md-2 form-floating">
-      <input autocomplete="off" type="text" placeholder="Reference" class="form-control ref" name="ref0" value="" required>
+      <input autocomplete="off" type="text" placeholder="Reference" class="form-control contract-input ref" name="ref0" value="" required>
       <label for="reference"> Item # </label>
     </div>
     <div class="col-md-3 form-floating">
-      <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control lot" name="lot0" value="" required>
+      <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control contract-input lot" name="lot0" value="" required>
       <label for="reference"> Lot or serial # </label>
     </div>
     <div class="col-md-1 form-floating">
-      <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" max="1" name="quantity0" value="" required>
+      <input autocomplete="off" type="text" placeholder="Quantity" class="form-control contract-input quantity" max="1" name="quantity0" value="" required>
       <label class="qty-label" for="reference"> Qty </label>
     </div>
     <div class="col-md-5 form-floating">
-      <input autocomplete="off" type="text" placeholder="Description" class="form-control description" name="description0" value="" required>
+      <input autocomplete="off" type="text" placeholder="Description" class="form-control contract-input description" name="description0" value="" required>
       <label for="reference"> Description </label>
     </div>
     <div class="col-md-1">
@@ -40,19 +40,19 @@
   <div id="template" class="d-none">
     <div class="row g-3 mb-3 product">
       <div class="col-md-2 form-floating">
-        <input autocomplete="off" type="text" placeholder="Reference" class="form-control ref" name="ref" value="" required>
+        <input autocomplete="off" type="text" placeholder="Reference" class="form-control contract-input ref" name="ref" value="" required>
         <label for="reference"> Item # </label>
       </div>
       <div class="col-md-3 form-floating">
-        <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control lot" name="lot" value="" required>
+        <input autocomplete="off" type="text" placeholder="Lot or serial #" class="form-control contract-input lot" name="lot" value="" required>
         <label for="reference"> Lot or serial # </label>
       </div>
       <div class="col-md-1 form-floating">
-        <input autocomplete="off" type="text" placeholder="Quantity" class="form-control quantity" max="1" name="quantity" value="" required>
+        <input autocomplete="off" type="text" placeholder="Quantity" class="form-control contract-input quantity" max="1" name="quantity" value="" required>
         <label class="qty-label" for="reference"> Qty </label>
       </div>
       <div class="col-md-5 form-floating">
-        <input autocomplete="off" type="text" placeholder="Description" class="form-control description" name="description" value="" required>
+        <input autocomplete="off" type="text" placeholder="Description" class="form-control contract-input description" name="description" value="" required>
         <label for="reference"> Description </label>
       </div>
       <div class="col-md-1">
@@ -102,13 +102,17 @@
     </div>
   </div>
   <div class="row g-3 mb-3 page-options-row">
-    <div class="form-inline col-md-auto col-12 pt-3">
-      <label for="" class="form-label">Any Additional Pages?</label>
+    <div class="form-inline col-md-2 col-12 pt-3">
+      <label for="" class="form-label">Additional Pages?</label>
     </div>
-    <div class="col-md-auto col-12 pt-3">
+    <div class="col-md-8 col-12 pt-3">
       <div class="form-check form-check-inline">
         <input class="form-check-input page-option" name="phone-consult" type="checkbox" id="phone-consult" value="phone-consult">
         <label class="form-check-label" for="phone-consult">Phone Consult</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input page-option" name="phone-consult-vis" type="checkbox" id="phone-consult-vis" value="phone-consult-vis">
+        <label class="form-check-label" for="phone-consult-vis">Phone Consult (ONLY VISIT)</label>
       </div>
       <div class="form-check form-check-inline">
         <input class="form-check-input page-option" name="checklist" type="checkbox" id="checklist" value="checklist">
@@ -124,14 +128,24 @@
       Sorry, we couldn't find that user in Coreplus.
     </div>
   </div>
-  <div class="success-wrapper d-none">
+  <div class="found-wrapper d-none">
     <div class="alert alert-success alert-dismissable fade show" role="alert">
       User found and stored for printing.
     </div>
   </div>
+  <div class="loading-wrapper d-none">
+    <div class="alert alert-secondary alert-dismissable fade show" role="alert">
+      Printing...
+    </div>
+  </div>
+  <div class="success-wrapper d-none">
+    <div class="alert alert-success alert-dismissable fade show" role="alert">
+      Contract printed.
+    </div>
+  </div>
   <div class="form-group d-none">
     <label for="">Invoice Text</label>
-    <textarea class="form-control" id="invoice_text"></textarea>
+    <textarea class="form-control contract-input" id="invoice_text"></textarea>
   </div>
 </form>
 
@@ -151,9 +165,7 @@
 
     //Remove product when remove button clicked
     $(document).on("click", ".remove", function() {
-      if ($(".product").length > 2) {
-        $(this).parent().parent().remove();
-      }
+      $(this).parent().parent().remove();
       $(this).blur()
     })
 
@@ -173,13 +185,14 @@
           $(".option").attr("disabled", true);
           break;
         case "phone-consult":
-          $("#report").prop('checked', true);
-          $("#visit").prop('checked', true);
+          $("#report").prop('checked', false);
+          $("#visit").prop('checked', false);
           $("#delivery").prop('checked', false);
           $("#setup").prop('checked', false);
           $("#urgent").prop('checked', false);
           $("#new").prop('checked', false);
           $(".option").attr("disabled", true);
+          $("#checklist").prop('checked', false);
           break;
         case "first":
           $("#report").prop('checked', true);
@@ -199,6 +212,15 @@
           $("#new").prop('checked', true);
           $(".option").attr("disabled", true);
           break;
+        case "no-report":
+          $("#report").prop('checked', false);
+          $("#visit").prop('checked', true);
+          $("#delivery").prop('checked', true);
+          $("#setup").prop('checked', false);
+          $("#urgent").prop('checked', false);
+          $("#new").prop('checked', false);
+          $(".option").attr("disabled", true);
+          $("#phone-consult-vis").prop('checked', true);
         case "custom":
           $("#report").prop('checked', false);
           $("#visit").prop('checked', false);
@@ -299,7 +321,7 @@
           $(".alert-wrapper").prev().alert('close');
         }, 3000);
       } else {
-        $(".alert-wrapper").before($(".success-wrapper").html())
+        $(".alert-wrapper").before($(".found-wrapper").html())
         setTimeout(function () {
           $(".alert-wrapper").prev().alert('close');
         }, 3000);
@@ -317,38 +339,33 @@
         }, 3000);
         $(this).blur()
       } else {
+        $(".alert-wrapper").before($(".loading-wrapper").html())
         var product_data = [[], [], [], []]
 
         $(".ref").each(function() {
-          if ($(this).val() != "") {
-            product_data[0].push($(this).val())
-          }
+          product_data[0].push($(this).val())
         })
 
         $(".lot").each(function() {
-          if ($(this).val() != "") {
-            product_data[1].push($(this).val())
-          }
+          product_data[1].push($(this).val())
         })
 
         $(".quantity").each(function() {
-          if ($(this).val() != "") {
-            product_data[2].push($(this).val())
-          }
+          product_data[2].push($(this).val())
         })
 
         $(".description").each(function() {
-          if ($(this).val() != "") {
-            product_data[3].push($(this).val())
-          }
+          product_data[3].push($(this).val())
         })
+
+        console.log(product_data)
 
         options = {
             "report":false,
             "visit":false,
-            "delivery":false,
             "setup":false,
-            "urgent":false
+            "urgent":false,
+            "delivery":false
         };
 
         $(".option").each(function(){
@@ -359,6 +376,7 @@
 
         page_options = {
           "phone-consult":false,
+          "phone-consult-vis":false,
           "checklist":false
         }
 
@@ -381,8 +399,14 @@
             data: JSON.stringify(pap_dump),
             type: 'POST',
             success: function(text) {
-              $("#invoice_text").val(text)
+              $(".alert-wrapper").prev().alert('close');
+              $("#invoice_text").val(text[0])
               $("#invoice_text").parent().removeClass("d-none")
+              $(".success-wrapper").children().text(text[1])
+              $(".alert-wrapper").before($(".success-wrapper").html())
+              setTimeout(function () {
+                $(".alert-wrapper").prev().alert('close');
+              }, 3000);
               window.open("/Contract")
             }
             //error: function(error) {

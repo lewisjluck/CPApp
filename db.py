@@ -67,7 +67,7 @@ def update_product(product):
         response["new"] = True
     sql_lots = db.execute("SELECT * FROM lots WHERE ref=?", (product.reference,)).fetchall()
     lots = [lot[0] for lot in sql_lots]
-    if not product.lot in lots:
+    if not product.lot in lots and not product.lot == "":
         db.execute("INSERT INTO lots (ref, lot, info) VALUES (?, ?, ?)", (product.reference, product.lot, date.today().strftime("%d/%m/%Y")))
         response["lot_changed"] = True
     db.commit()

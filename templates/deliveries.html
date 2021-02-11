@@ -7,11 +7,14 @@
 <p class="mx-auto">Please use this tool to record client details for deliveries.</p>
 
 <form class="mx-auto" action="/deliveries" method="post">
-  <div class="row g-3 mb-3 options-row">
-    <div class="col-md-6 col-12">
+  <div class="row g-3 mb-3">
+    <div class="col-md-4 col-12 form-floating">
+      <button type="submit" class="btn form-btn btn-success block p-x-4 col-12" name="send">Send details to:<input autocomplete="off" autofocus type="text" placeholder="Number" class="form-control d-auto" id="number" name="number" value=""></button>
+    </div>
+    <div class="col-md-4 col-12">
       <button type="submit" class="btn form-btn btn-dark function-btn block px-4 col-12" name="download">Download details</button>
     </div>
-    <div class="col-md-6 col-12">
+    <div class="col-md-4 col-12">
       <button type="submit" class="btn form-btn btn-danger block px-4 col-12" name="clear">Clear details</button>
     </div>
   </div>
@@ -22,5 +25,12 @@
     color: rgba(255,255,255,.7);
   }
 </style>
+
+<script type="text/javascript">
+  $(function() {
+    source = {{numbers}}
+    $("#number").autocomplete(source)
+  })
+</script>
 
 {% endblock %}

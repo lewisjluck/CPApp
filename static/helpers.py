@@ -10,8 +10,31 @@ class Client :
         self.postcode = postcode
         self.mobile_number = mobile_number
         self.home_number = home_number
-    def text(self):
-        return f"{self.first_name} {self.last_name} \n{self.address}, {self.suburb} \n{self.mobile_number}/{self.home_number}\n"
+    # Deliveries text
+    def update_doc(self):
+        from docx import Document
+        document = Document("./static/deliveries.docx")
+        text = f"{self.first_name} {self.last_name} \n{self.address}, {self.suburb} \n"
+        text += f"Mobile: {self.mobile_number}\n" if self.mobile_number else ""
+        text += f"Home: {self.home_number}\n" if self.home_number else ""
+        document.add_paragraph(text)
+        document.save("./static/deliveries.docx")
+
+def make_doc():
+    from docx import Document
+    from datetime import date
+    current_date = date.today()
+    document = Document()
+    document.add_heading("Deliveres for " + current_date.strftime("%d/%m/%Y"))
+    document.save("./static/deliveries.docx")
+
+def get_text():
+    from docx import Document
+    document = Document("./static/deliveries.docx")
+    text = []
+    for para in document.paragraphs:
+        text.append(para.text)
+    return '\n'.join(text)
 
 class Product:
     #Initialise a product with appropriate details
@@ -23,7 +46,7 @@ class Product:
 
 class Form:
     #Initialise a form with a Client, pages of Products, and options
-    def __init__(self, client, products, options, new):
+    def __init__(self, client, products, options, new, page_options):
         #Assign main details to values
         self.new = new
         self.client = client
@@ -59,12 +82,12 @@ class Form:
 
         pages = [[]]
         i = 0
-        page_options = []
+        code_options = []
         for option, setting in options.items():
             if setting:
-                page_options.append(SERVICE_PRODUCTS[option])
+                code_options.append(SERVICE_PRODUCTS[option])
         if not products:
-            pages[0] = page_options
+            pages[0] = code_options
 
         #Generate invoice text
         string = f"This invoice is for DVA:{client.dva_num}."
@@ -76,14 +99,21 @@ class Form:
         while products:
             pages[i].append(products.pop(0))
             if not products:
-                if (len(pages[i]) + len(page_options)) > 5:
-                    pages.append(page_options)
+                if (len(pages[i]) + len(code_options)) > 5:
+                    pages.append(code_options)
                 else:
-                    pages[i] += page_options
+                    pages[i] += code_options
                 break
             if len(pages[i]) == 5:
                 pages.append([])
                 i += 1
+        if page_options["phone-consult"]:
+            pages.append([SERVICE_PRODUCTS["report"], SERVICE_PRODUCTS["visit"]])
+        if page_options["phone-consult-vis"]:
+            pages.append([SERVICE_PRODUCTS["visit"]])
+
+        self.checklist = page_options["checklist"]
+
         #Assign values
         self.pages = pages
 
@@ -157,23 +187,23 @@ class Form:
             #Add page to writer, update fields from input data
             pdf_pages.append(pypdftk.fill_form(template_name, field_dict))
 
+        if self.checklist:
+            end_form_template_name = "static/pdf_templates/end_page.pdf"
+            #Get pdf templates using PyPDF2
+            end_form = PdfFileReader(open(end_form_template_name, "rb"))
 
-        end_form_template_name = "static/pdf_templates/end_page.pdf"
-        #Get pdf templates using PyPDF2
-        end_form = PdfFileReader(open(end_form_template_name, "rb"))
+            #Get end form fields from reader
+            end_fields = end_form.getFields(tree=None, retval=None, fileobj=None)
+            end_field_names = list(end_fields.keys())
 
-        #Get end form fields from reader
-        end_fields = end_form.getFields(tree=None, retval=None, fileobj=None)
-        end_field_names = list(end_fields.keys())
+            #Populate end field values with name and date, position depending on options
+            end_field_values = [""] * 4
+            index = 2 if self.new else 0
+            current_date = date.today()
+            end_field_values[index:index+1] = [self.client.first_name + " " + self.client.last_name, current_date.strftime("%d/%m/%Y")]
 
-        #Populate end field values with name and date, position depending on options
-        end_field_values = [""] * 4
-        index = 2 if self.new else 0
-        current_date = date.today()
-        end_field_values[index:index+1] = [self.client.first_name + " " + self.client.last_name, current_date.strftime("%d/%m/%Y")]
+            #Zip end field values and names into dict
+            end_field_dict = dict(zip(end_field_names, end_field_values))
 
-        #Zip end field values and names into dict
-        end_field_dict = dict(zip(end_field_names, end_field_values))
-
-        pdf_pages.append(pypdftk.fill_form(end_form_template_name, end_field_dict))
+            pdf_pages.append(pypdftk.fill_form(end_form_template_name, end_field_dict))
         pypdftk.concat(pdf_pages, "static/print.pdf")
