@@ -94,7 +94,7 @@ def claims(url):
           "httpMethod": "GET"
     };
     encoded_jwt_byte = jwt.encode(claims, COREPLUS_API_SECRET, algorithm='HS256')
-    headers = {"Authorization": "JwToken" + " " + str(encoded_jwt_byte), "content-type": "application/json"}
+    headers = {"Authorization": "JwToken" + " " + str(encoded_jwt_byte)[2:-1], "content-type": "application/json"}
     return headers
 
 #Default error response
