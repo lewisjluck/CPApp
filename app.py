@@ -1,11 +1,11 @@
 #Flask libraries
-from flask import Flask, render_template, request, redirect, jsonify, Response, send_from_directory, send_file
+from flask import Flask, render_template, request, redirect, jsonify, Response, send_from_directory, send_file, json
 from static.helpers import Form, Client, Product, make_doc, get_text
 import requests
 from db import search_product, add_lot, update_product
 
 #SMS Library - Twilio
-from twilio.rest import Client
+import twilio.rest
 
 #Standard libraries
 import os
@@ -60,15 +60,14 @@ def parse_form(json_data, data):
         state = json_data['addressResidential']["state"]
     else:
         state = json_data['addressResidential']["suburb"][-3:]
+
     client = Client(json_data['firstName'], json_data["lastName"], "123456", json_data['addressResidential']["streetAddress"], suburb, state, json_data['addressResidential']["postcode"], json_data["phoneNumberMobile"], json_data["phoneNumberHome"])
-    name = client.first_name + " " + client.last_name
-    if name not in deliveries_clients:
+    if data["id"] not in deliveries_clients:
         client.update_doc()
-        deliveries_clients.append(name)
+        deliveries_clients.append(data["id"])
     options = data["options"]
     products = []
     responses = []
-    print(data)
     for i in range(len(data["products"][0])):
         if not data["products"][0][i] == "":
             products.append(Product(data["products"][0][i], data["products"][1][i], data["products"][2][i], data["products"][3][i]))
@@ -94,7 +93,7 @@ def claims(url):
           "httpMethod": "GET"
     };
     encoded_jwt_byte = jwt.encode(claims, COREPLUS_API_SECRET, algorithm='HS256')
-    headers = {"Authorization": "JwToken" + " " + str(encoded_jwt_byte), "content-type": "application/json"}
+    headers = {"Authorization": "JwToken" + " " + str(encoded_jwt_byte)[2:-1], "content-type": "application/json"}
     return headers
 
 #Default error response
@@ -128,8 +127,6 @@ def get_clients():
     if name_fragment:
         client_list_query = COREPLUS_BASE_URL + "/Client/?name=" + name_fragment
         response = requests.get(url=client_list_query, verify=True, headers=claims(client_list_query), timeout=45);
-        print(claims(client_list_query))
-        print(response.headers, response.content)
         try:
             return jsonify(response.json()["clients"])
         except Exception as e:
@@ -193,13 +190,16 @@ def deliveries():
             number = request.form.get("number")
             if number not in numbers:
                 numbers.append(number)
-            print(get_text())
-            print(numbers)
-            client = Client(TWILIO_SID, TWILIO_TOKEN)
-            #message = client.message.create(to="+61467226317", from_="+16622658077", body=get_text())
-        return redirect("/deliveries")
+            client = twilio.rest.Client(TWILIO_SID, TWILIO_TOKEN)
+            try:
+                message = client.messages.create(to=number, from_="+16622658077", body=get_text())
+                print(numbers)
+                return render_template("deliveries.html", numbers=json.dumps(numbers), message=f"Your message was sent to {number}.")
+            except Exception as e:
+                return render_template("deliveries.html", numbers=json.dumps(numbers), message=f"Your message failed. This is likely due to the number you entered.")
     else:
-        return render_template("deliveries.html", numbers=jsonify(numbers))
+        print(numbers)
+        return render_template("deliveries.html", numbers=json.dumps(numbers), message="")
 
 #Page to update or add products to the database
 @app.route("/products", methods = ["GET", "POST"])
@@ -217,7 +217,11 @@ def products():
 #Login page for security (may not be implemented)
 @app.route("/help", methods = ["GET", "POST"])
 def help():
-    return unimplemented()
+    import markdown
+    with open("static/user_guide.md", 'r') as file:
+        text = file.read()
+        html = markdown.markdown(text)
+    return render_template("help.html", content = html)
 
 """
 if __name__ == "__main__":

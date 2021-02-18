@@ -8,10 +8,15 @@ main {
 h1, h2, h3, h4, h5, h6, nav, a {
   font-family: 'Montserrat', sans-serif;
   font-weight: 900;
+  text-align: center !important;
 }
 
-form {
+#body-container {
   max-width: 70vw;
+}
+
+.help-container {
+  text-align: left;
 }
 
 label {
