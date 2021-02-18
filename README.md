@@ -1,6 +1,24 @@
 # CPApp
 An all-in-one tool for optimising office paperwork management and other processes, specifically designed for sleep apnoea health practices.
 
+## Setup
+
+Python 3 and [pipenv](https://pipenv.pypa.io/en/latest/) are required to run CPApp. The following will install all dependencies required to run CPApp.
+
+```
+pipenv install
+```
+
+or if you just want to use the traditional requirements.txt:
+
+```
+pip install --user -U -r requirements.txt
+```
+
+## Running CPApp in development
+
+Just use `pipenv run flask run` or `flask run` in the `pipenv shell` or normally.
+
 ## Help guide for CPApp Version 1.0
 CPApp has one main function: producing DVA receipt of purchase forms for sleep apnoea equipment across a variety of brands including Resmed and Philips Respironics. Below is a guide to navigating the web app.
 
@@ -30,10 +48,3 @@ This tab provides a text file of all clients printed since last cleared. To clea
 1. Connect to AirView Exchange when it is available in Australia to dynamically produce Sleep Reports for clients. Overseas information for this product is available from [this document](https://document.resmed.com/documents/epn/10110364r1%20AirView%20Integration%20Solutions%20Brochure%20EMEA%20ENG%20LOW%20page2.pdf).
 2. Implement smart routing with the deliveries to optimise fuel, traffic and distance parameters.
 3. Depending on expansion opportunities, add sign in functionality for different offices/users, generating different apis and databases.
-
-### Dependencies Acknowledgement
-* [Flask](https://flask.palletsprojects.com/en/1.1.x/)
-* [PyPdf2](https://pypi.org/project/PyPDF2/) and [pypdftk](https://pypi.org/project/pypdftk/)
-* [Coreplus API](https://developers.coreplus.com.au/)
-* Google Maps' [Python Framework](https://pypi.org/project/googlemaps/), using [Distance Matrix](https://developers.google.com/maps/documentation/distance-matrix/overview)
-* Standard [Python](https://www.python.org/), [JSON](https://www.json.org/json-en.html), [Javascript Web Tokens](https://jwt.io/) and [HTTP Requests](https://requests.readthedocs.io/en/master/) libraries

@@ -4,3 +4,12 @@ products.db-journal
 print.pdf
 products.csv
 __pycache__/
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
