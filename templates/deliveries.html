@@ -19,6 +19,16 @@
     </div>
   </div>
 </form>
+<div class="success-wrapper d-none">
+  <div class="alert alert-success alert-dismissable fade show" role="alert">
+    User found and stored for printing.
+  </div>
+</div>
+<div class="alert-wrapper d-none">
+  <div class="alert alert-danger alert-dismissable fade show" role="alert">
+    Sorry, we couldn't find that user in Coreplus.
+  </div>
+</div>
 
 <style>
   #deliveries {
@@ -28,9 +38,26 @@
 
 <script type="text/javascript">
   $(function() {
-    source = {{numbers}}
+    source = {{numbers|safe}}
+    console.log(source)
     $("#number").autocomplete(source)
+  $('#target').keypress(function (event) {
+    var code = event.keyCode || event.which;
+    if (code  == 13 || code == 32) {
+      event.preventDefault();
+      return false;
+    }
   })
+  message = "{{message}}";
+  console.log(message)
+  if (message) {
+    $(".success-wrapper").children().text(message);
+    $(".success-wrapper").before($(".success-wrapper").html());
+    setTimeout(function () {
+      $(".success-wrapper").prev().alert('close');
+    }, 3000);
+  }
+});
 </script>
 
 {% endblock %}
