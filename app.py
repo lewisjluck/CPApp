@@ -210,7 +210,5 @@ def help():
         html = markdown.markdown(text)
     return render_template("help.html", content = html)
 
-"""
 if __name__ == "__main__":
     app.run(debug=True)
-"""
