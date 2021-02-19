@@ -14,8 +14,10 @@ import jwt
 import datetime
 import csv
 
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+
 #Open file for secret
-secret = open("secret.txt", "r").read().splitlines()
+secret = open(os.path.join(THIS_FOLDER, 'secret.txt'), "r").read().splitlines()
 
 #Coreplus API keys
 COREPLUS_API_CONSUMER_ID = secret[0]
@@ -217,7 +219,7 @@ def products():
 @app.route("/help", methods = ["GET", "POST"])
 def help():
     import markdown
-    with open("static/user_guide.md", 'r') as file:
+    with open(os.path.join(THIS_FOLDER, "static/user_guide.md"), 'r') as file:
         text = file.read()
         html = markdown.markdown(text)
     return render_template("help.html", content = html)

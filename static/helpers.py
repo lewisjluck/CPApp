@@ -1,3 +1,6 @@
+import os
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+
 class Client :
     #Initialise a client with appropriate details
     def __init__(self, first_name, last_name, dva_num, address, suburb, state, postcode, mobile_number, home_number):
@@ -13,12 +16,12 @@ class Client :
     # Deliveries text
     def update_doc(self):
         from docx import Document
-        document = Document("./static/deliveries.docx")
+        document = Document(os.path.join(THIS_FOLDER, './static/deliveries.docx'))
         text = f"{self.first_name} {self.last_name} \n{self.address}, {self.suburb} \n"
         text += f"Mobile: {self.mobile_number}\n" if self.mobile_number else ""
         text += f"Home: {self.home_number}\n" if self.home_number else ""
         document.add_paragraph(text)
-        document.save("./static/deliveries.docx")
+        document.save(os.path.join(THIS_FOLDER, './static/deliveries.docx'))
 
 def make_doc():
     from docx import Document
@@ -26,11 +29,11 @@ def make_doc():
     current_date = date.today()
     document = Document()
     document.add_heading("Deliveres for " + current_date.strftime("%d/%m/%Y"))
-    document.save("./static/deliveries.docx")
+    document.save(os.path.join(THIS_FOLDER, './static/deliveries.docx'))
 
 def get_text():
     from docx import Document
-    document = Document("./static/deliveries.docx")
+    document = Document(os.path.join(THIS_FOLDER, './static/deliveries.docx'))
     text = []
     for para in document.paragraphs:
         text.append(para.text)
@@ -122,7 +125,7 @@ class Form:
         import googlemaps
 
         #Open file for secret
-        secret = open("secret.txt", "r").readlines()
+        secret = open(os.path.join(THIS_FOLDER, 'secret.txt'), "r").readlines()
 
         #Work address
         WORK_ADDRESS = secret[3]
@@ -165,7 +168,7 @@ class Form:
         #Cycle through pages
         for j, page in enumerate(self.pages):
 
-            template_name = "static/pdf_templates/form.pdf"
+            template_name = os.path.join(THIS_FOLDER, "static/pdf_templates/form.pdf")
 
             #Read pdf templates using PyPDF2
             form = PdfFileReader(open(template_name, "rb"))
@@ -188,7 +191,7 @@ class Form:
             pdf_pages.append(pypdftk.fill_form(template_name, field_dict))
 
         if self.checklist:
-            end_form_template_name = "static/pdf_templates/end_page.pdf"
+            end_form_template_name = os.path.join(THIS_FOLDER, "static/pdf_templates/end_page.pdf")
             #Get pdf templates using PyPDF2
             end_form = PdfFileReader(open(end_form_template_name, "rb"))
 
@@ -206,4 +209,4 @@ class Form:
             end_field_dict = dict(zip(end_field_names, end_field_values))
 
             pdf_pages.append(pypdftk.fill_form(end_form_template_name, end_field_dict))
-        pypdftk.concat(pdf_pages, "static/print.pdf")
+        pypdftk.concat(pdf_pages, os.path.join(THIS_FOLDER, "static/print.pdf"))
