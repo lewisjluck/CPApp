@@ -6,7 +6,7 @@
 <h1 class="mx-auto">Deliveries</h1>
 <p class="mx-auto">Please use this tool to record client details for deliveries.</p>
 
-<form class="mx-auto" action="/deliveries" method="post">
+<form class="mx-auto" onsubmit="if (flag) {event.preventDefault(); flag=false;};" action="/deliveries" method="post">
   <div class="row g-3 mb-3">
     <div class="col-md-4 col-12 form-floating">
       <button type="submit" class="btn form-btn btn-success block p-x-4 col-12" name="send">Send details to:<input autocomplete="off" autofocus type="text" placeholder="Number" class="form-control d-auto" id="number" name="number" value=""></button>
@@ -20,36 +20,27 @@
   </div>
 </form>
 <div class="success-wrapper d-none">
-  <div class="alert alert-success alert-dismissable fade show" role="alert">
+  <div class="alert alert-secondary alert-dismissable fade show" role="alert">
     User found and stored for printing.
-  </div>
-</div>
-<div class="alert-wrapper d-none">
-  <div class="alert alert-danger alert-dismissable fade show" role="alert">
-    Sorry, we couldn't find that user in Coreplus.
   </div>
 </div>
 
 <style>
   #deliveries {
-    color: rgba(255,255,255,.7);
+    color: rgba(255,255,255,0.9);
   }
 </style>
 
 <script type="text/javascript">
   $(function() {
-    source = {{numbers|safe}}
-    console.log(source)
-    $("#number").autocomplete(source)
-  $('#target').keypress(function (event) {
-    var code = event.keyCode || event.which;
-    if (code  == 13 || code == 32) {
-      event.preventDefault();
-      return false;
-    }
-  })
+    flag = false;
+    $('#number').keypress(function (event) {
+      var code = event.keyCode || event.which;
+      if (code == 32) {
+        flag = true;
+      }
+    })
   message = "{{message}}";
-  console.log(message)
   if (message) {
     $(".success-wrapper").children().text(message);
     $(".success-wrapper").before($(".success-wrapper").html());

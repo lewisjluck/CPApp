@@ -186,20 +186,19 @@ def deliveries():
                 print("FILE DOES NOT EXIST")
             make_doc()
             deliveries_clients = []
+            return render_template("deliveries.html", message=f"Client details cleared.")
         elif "send" in request.form:
             number = request.form.get("number")
-            if number not in numbers:
-                numbers.append(number)
             client = twilio.rest.Client(TWILIO_SID, TWILIO_TOKEN)
             try:
                 message = client.messages.create(to=number, from_="+16622658077", body=get_text())
                 print(numbers)
-                return render_template("deliveries.html", numbers=json.dumps(numbers), message=f"Your message was sent to {number}.")
+                return render_template("deliveries.html", message=f"Your message was sent to {number}.")
             except Exception as e:
-                return render_template("deliveries.html", numbers=json.dumps(numbers), message=f"Your message failed. This is likely due to the number you entered.")
+                return render_template("deliveries.html", message=f"Your message failed. This is likely due to the number you entered.")
     else:
         print(numbers)
-        return render_template("deliveries.html", numbers=json.dumps(numbers), message="")
+        return render_template("deliveries.html", message="")
 
 #Page to update or add products to the database
 @app.route("/products", methods = ["GET", "POST"])
