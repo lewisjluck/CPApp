@@ -35,22 +35,6 @@ deliveries_clients = []
 #Numbers
 numbers = []
 
-# *** TESTING ***
-"""
-client = Client("Lewis", "Luck", "123456", "6 Chrystal Street", "Paddington", "QLD", "4064", "0467226317")
-options = {
-    "report":True,
-    "visit":True,
-    "delivery":True,
-    "setup":False,
-    "urgent":False
-}
-form = Form(client, [Product("1", "1", "1", "Example Product 1")], options, True)
-form.make_pdf()
-"""
-
-
-
 #Flask setup
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -83,9 +67,9 @@ def parse_form(json_data, data):
     return (Form(client, products, data["options"], data["new"], data["page-options"]), responses)
 
 #Helper function to generate coreplus API claims
-def claims(url):
+def claims(url, app_url):
     claims = {
-          "iss": "http://127.0.0.1:5000/",
+          "iss": app_url,
           "aud": "https://coreplus.com.au",
           "nbf": datetime.datetime.utcnow(),
           "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=60),
@@ -126,9 +110,10 @@ def contracts():
 @app.route("/get_clients", methods= ["GET", "POST"])
 def get_clients():
     name_fragment = request.args.get('name')
+    app_url = request.base_url
     if name_fragment:
         client_list_query = COREPLUS_BASE_URL + "/Client/?name=" + name_fragment
-        response = requests.get(url=client_list_query, verify=True, headers=claims(client_list_query), timeout=45);
+        response = requests.get(url=client_list_query, verify=True, headers=claims(client_list_query, app_url), timeout=45);
         try:
             return jsonify(response.json()["clients"])
         except Exception as e:
@@ -153,9 +138,10 @@ def get_products():
 @app.route("/make_file", methods= ["GET", "POST"])
 def make_file():
     data = request.get_json(force=True)
+    app_url = request.base_url
     if data:
         client_data_query = COREPLUS_BASE_URL + "/Client/" + data["id"]
-        api_response = requests.get(url=client_data_query, verify=True, headers=claims(client_data_query), timeout=45);
+        api_response = requests.get(url=client_data_query, verify=True, headers=claims(client_data_query, app_url), timeout=45);
         json_data = api_response.json()
         parse = parse_form(json_data, data)
         text = f"The contract for " + json_data["firstName"] + " " + json_data["lastName"] + " has been printed."
