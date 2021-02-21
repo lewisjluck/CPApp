@@ -166,10 +166,10 @@ def print_error():
 def deliveries():
     if request.method == "POST":
         if "download" in request.form:
-            return send_file("./static/deliveries.docx", cache_timeout=0)
+            return send_file(os.path.join(THIS_FOLDER, "./static/deliveries.docx"), cache_timeout=0)
         elif "clear" in request.form:
             try:
-                os.remove("./static/deliveries.docx")
+                os.remove(os.path.join(THIS_FOLDER, "./static/deliveries.docx"))
             except:
                 print("FILE DOES NOT EXIST")
             make_doc()
