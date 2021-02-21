@@ -47,7 +47,7 @@ def parse_form(json_data, data):
     else:
         state = json_data['addressResidential']["suburb"][-3:]
 
-    client = Client(json_data['firstName'], json_data["lastName"], "123456", json_data['addressResidential']["streetAddress"], suburb, state, json_data['addressResidential']["postcode"], json_data["phoneNumberMobile"], json_data["phoneNumberHome"])
+    client = Client(json_data['firstName'], json_data["lastName"], json_data["dvaCardNumber"], json_data['addressResidential']["streetAddress"], suburb, state, json_data['addressResidential']["postcode"], json_data["phoneNumberMobile"], json_data["phoneNumberHome"])
     if data["id"] not in deliveries_clients:
         client.update_doc()
         deliveries_clients.append(data["id"])
