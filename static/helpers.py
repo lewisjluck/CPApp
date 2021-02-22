@@ -16,12 +16,12 @@ class Client :
     # Deliveries text
     def update_doc(self):
         from docx import Document
-        document = Document(os.path.join(THIS_FOLDER, './deliveries.docx'))
+        document = Document(os.path.join(THIS_FOLDER, '../dynamic/deliveries.docx'))
         text = f"{self.first_name} {self.last_name} \n{self.address}, {self.suburb} \n"
         text += f"Mobile: {self.mobile_number}\n" if self.mobile_number else ""
         text += f"Home: {self.home_number}\n" if self.home_number else ""
         document.add_paragraph(text)
-        document.save(os.path.join(THIS_FOLDER, './deliveries.docx'))
+        document.save(os.path.join(THIS_FOLDER, '../dynamic/deliveries.docx'))
 
 def make_doc():
     from docx import Document
@@ -29,11 +29,11 @@ def make_doc():
     current_date = date.today()
     document = Document()
     document.add_heading("Deliveres for " + current_date.strftime("%d/%m/%Y"))
-    document.save(os.path.join(THIS_FOLDER, './deliveries.docx'))
+    document.save(os.path.join(THIS_FOLDER, '../dynamic/deliveries.docx'))
 
 def get_text():
     from docx import Document
-    document = Document(os.path.join(THIS_FOLDER, './deliveries.docx'))
+    document = Document(os.path.join(THIS_FOLDER, '../dynamic/deliveries.docx'))
     text = []
     for para in document.paragraphs:
         text.append(para.text)
@@ -211,4 +211,4 @@ class Form:
             end_field_dict = dict(zip(end_field_names, end_field_values))
 
             pdf_pages.append(pypdftk.fill_form(end_form_template_name, end_field_dict))
-        pypdftk.concat(pdf_pages, os.path.join(THIS_FOLDER, "./print.pdf"))
+        pypdftk.concat(pdf_pages, os.path.join(THIS_FOLDER, "../dynamic/print.pdf"))

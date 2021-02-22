@@ -154,7 +154,7 @@ def make_file():
 #Display file
 @app.route("/Contract", methods = ["GET", "POST"])
 def get_file():
-    return send_file("./static/print.pdf", mimetype="application/pdf", cache_timeout=0)
+    return send_file(os.path.join(THIS_FOLDER, "./dynamic/print.pdf"), mimetype="application/pdf", cache_timeout=0)
 
 #Print error page
 @app.route("/print_error", methods=["GET", "POST"])
@@ -166,10 +166,10 @@ def print_error():
 def deliveries():
     if request.method == "POST":
         if "download" in request.form:
-            return send_file(os.path.join(THIS_FOLDER, "./static/deliveries.docx"), cache_timeout=0)
+            return send_file(os.path.join(THIS_FOLDER, "./dynamic/deliveries.docx"), cache_timeout=0)
         elif "clear" in request.form:
             try:
-                os.remove(os.path.join(THIS_FOLDER, "./static/deliveries.docx"))
+                os.remove(os.path.join(THIS_FOLDER, "./dynamic/deliveries.docx"))
             except:
                 print("FILE DOES NOT EXIST")
             make_doc()
