@@ -25,8 +25,10 @@ class Client :
 
 def make_doc():
     from docx import Document
-    from datetime import date
-    current_date = date.today()
+    from datetime import datetime
+    import pytz
+    tz = pytz.timezone("Australia/Brisbane")
+    current_date = datetime.now(tz)
     document = Document()
     document.add_heading("Deliveres for " + current_date.strftime("%d/%m/%Y"))
     document.save(os.path.join(THIS_FOLDER, '../dynamic/deliveries.docx'))
@@ -161,7 +163,7 @@ class Form:
     def make_pdf(self):
         #Import dependencies
         from PyPDF2 import PdfFileReader
-        from datetime import date
+        from datetime import datetime
         import os
         import pypdftk
 
@@ -204,7 +206,8 @@ class Form:
             #Populate end field values with name and date, position depending on options
             end_field_values = [""] * 4
             index = 2 if self.new else 0
-            current_date = date.today()
+            tz = pytz.timezone("Australia/Brisbane")
+            current_date = datetime.now(tz)
             end_field_values[index:index+1] = [self.client.first_name + " " + self.client.last_name, current_date.strftime("%d/%m/%Y")]
 
             #Zip end field values and names into dict
