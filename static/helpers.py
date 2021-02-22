@@ -16,12 +16,14 @@ class Client :
     # Deliveries text
     def update_doc(self):
         from docx import Document
+        from docx2pdf import convert
         document = Document(os.path.join(THIS_FOLDER, './deliveries.docx'))
         text = f"{self.first_name} {self.last_name} \n{self.address}, {self.suburb} \n"
         text += f"Mobile: {self.mobile_number}\n" if self.mobile_number else ""
         text += f"Home: {self.home_number}\n" if self.home_number else ""
         document.add_paragraph(text)
         document.save(os.path.join(THIS_FOLDER, './deliveries.docx'))
+        convert(os.path.join(THIS_FOLDER, './deliveries.docx'))
 
 def make_doc():
     from docx import Document
@@ -30,6 +32,7 @@ def make_doc():
     document = Document()
     document.add_heading("Deliveres for " + current_date.strftime("%d/%m/%Y"))
     document.save(os.path.join(THIS_FOLDER, './deliveries.docx'))
+    convert(os.path.join(THIS_FOLDER, './deliveries.docx'))
 
 def get_text():
     from docx import Document

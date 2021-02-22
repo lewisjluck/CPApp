@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6c4888bcb7fc71120034c9c811581046af90895974e639ee074b8c39d2e48ddf"
+            "sha256": "6faf3484d85d9701683a4f46bbf992abfce03a156eef5ea82caa3edb873ed5e1"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,17 @@
         ]
     },
     "default": {
+        "appscript": {
+            "hashes": [
+                "sha256:15727bda6f4049be5436e1974461f96b088d14ad154950417a7cda04587e6097",
+                "sha256:2137c3dec0371243e8cac2c134e5f439cc8eccba77756ade59f1597ca9f1b7e5",
+                "sha256:25c4be8fee83d69997952a7e378dd22d7d83d025566135b0b1d5552339b8ec1f",
+                "sha256:2948e5cd04718718230b2e9756656c1155b16f3421e5bc4c28ccc345a4b1536f",
+                "sha256:829f718984577d3f0e936d8d1b0ca842d28be302d013b8ae7e3d2ed3e52cd119"
+            ],
+            "markers": "sys_platform == 'darwin'",
+            "version": "==1.1.2"
+        },
         "certifi": {
             "hashes": [
                 "sha256:1a4995114262bffbc2413b159f2a1a480c969de6e6eb13ee966d470af86af59c",
@@ -38,6 +49,14 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'",
             "version": "==7.1.2"
+        },
+        "docx2pdf": {
+            "hashes": [
+                "sha256:90528dbc6324868cbbdfa9a0dc0bb2998e79e20cde3a6ba82be58d3582fe008f",
+                "sha256:cda2c1a151dca72f9af98f089cc95859796dbad6a0b9b2687e578bfa0bb1f182"
+            ],
+            "index": "pypi",
+            "version": "==0.1.7"
         },
         "flask": {
             "hashes": [
@@ -238,6 +257,14 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==1.15.0"
+        },
+        "tqdm": {
+            "hashes": [
+                "sha256:65185676e9fdf20d154cffd1c5de8e39ef9696ff7e59fe0156b1b08e468736af",
+                "sha256:70657337ec104eb4f3fb229285358f23f045433f6aea26846cdd55f0fd68945c"
+            ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "version": "==4.57.0"
         },
         "twilio": {
             "hashes": [
