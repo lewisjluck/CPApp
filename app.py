@@ -1,6 +1,6 @@
 #Flask libraries
-from flask import Flask, render_template, request, redirect, jsonify, Response, send_from_directory, send_file, json
-from static.helpers import Form, Client, Product, make_doc, get_text
+from flask import Flask, render_template, request, redirect, jsonify, Response, send_file
+from static.helpers import Form, Client, Product, make_doc
 import requests
 from db import search_product, add_lot, update_product
 
@@ -9,10 +9,8 @@ import twilio.rest
 
 #Standard libraries
 import os
-import json
 import jwt
 import datetime
-import csv
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
@@ -51,7 +49,6 @@ def parse_form(json_data, data):
     if data["id"] not in deliveries_clients:
         client.update_doc()
         deliveries_clients.append(data["id"])
-    options = data["options"]
     products = []
     responses = []
     for i in range(len(data["products"][0])):
@@ -146,7 +143,7 @@ def make_file():
         parse = parse_form(json_data, data)
         text = f"The contract for " + json_data["firstName"] + " " + json_data["lastName"] + " has been printed."
         for info in parse[1]:
-            text += f"The product with reference " + str(response["reference"]) + " has been added."
+            text += f"The product with reference " + str(info["reference"]) + " has been added."
         form = parse[0]
         form.make_pdf()
         return jsonify(form.text, text)
@@ -173,7 +170,6 @@ def deliveries():
             except:
                 print("FILE DOES NOT EXIST")
             make_doc()
-            deliveries_clients = []
             return render_template("deliveries.html", message=f"Client details cleared.")
         elif "send" in request.form:
             number = request.form.get("number")
@@ -181,7 +177,7 @@ def deliveries():
             try:
                 #message = client.messages.create(to=number, from_="+16622658077", body=get_text())
                 return render_template("deliveries.html", message=f"Your message was sent to {number}.")
-            except Exception as e:
+            except:
                 return render_template("deliveries.html", message=f"Your message failed. This is likely due to the number you entered.")
     else:
         return render_template("deliveries.html", message="")
